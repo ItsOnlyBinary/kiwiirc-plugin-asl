@@ -1,0 +1,39 @@
+{
+    "name": "plugin-custom-welcome-asl",
+    "version": "0.0.1",
+    "main": "custom-welcome.js",
+    "license": "Apache-2.0",
+    "private": true,
+    "scripts": {
+        "build": "webpack",
+        "watch": "webpack --watch",
+        "start": "webpack-dev-server",
+        "lint:eslint": "eslint --ext .js,.vue ./",
+        "lint:stylelint": "stylelint \"**/*.{vue,htm,html,css,sss,less,scss}\"",
+        "lint": "npm run lint:eslint && npm run lint:stylelint"
+    },
+    "devDependencies": {
+        "babel-core": "^6.26.0",
+        "babel-eslint": "^8.1.2",
+        "babel-loader": "7.1.1",
+        "css-loader": "^0.28.8",
+        "eslint": "^4.15.0",
+        "eslint-config-airbnb-base": "^12.1.0",
+        "eslint-config-standard": "^10.2.1",
+        "eslint-plugin-import": "^2.8.0",
+        "eslint-plugin-node": "^5.2.0",
+        "eslint-plugin-promise": "^3.4.0",
+        "eslint-plugin-standard": "^3.0.1",
+        "eslint-plugin-vue": "^4.5.0",
+        "less": "^3.8.1",
+        "less-loader": "^4.1.0",
+        "style-loader": "^0.21.0",
+        "stylelint": "^9.3.0",
+        "stylelint-config-standard": "^18.2.0",
+        "vue-loader": "^15.2.4",
+        "vue-template-compiler": "^2.0.0",
+        "webpack": "^4.6.0",
+        "webpack-cli": "^2.1.2",
+        "webpack-dev-server": "^3.1.3"
+    }
+}
