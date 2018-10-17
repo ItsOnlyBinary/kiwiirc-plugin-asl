@@ -33,6 +33,25 @@
                         type="password"
                     />
                     <input-text
+                        label="Age"
+                        v-model="age"
+                        class="kiwi-welcome-simple-age"
+                        type="number"
+                    />
+                    <div class="kiwi-welcome-simple-sex">
+                        <span >Sex: </span>
+                        <select v-model="sex">
+                            <option :value="null" selected disabled>Choose</option>
+                            <option value="M">Male</option>
+                            <option value="F">Female</option>
+                            <option value="O">Other</option>
+                        </select>
+                    </div>
+                    <input-text
+                        label="Location"
+                        v-model="location"
+                    />
+                    <input-text
                         v-if="showChannel"
                         :label="$t('channel')"
                         v-model="channel"
@@ -61,12 +80,10 @@
 </template>
 
 <script>
-'kiwi public';
 
-import _ from 'lodash';
-import * as Misc from '@/helpers/Misc';
-import state from '@/libs/state';
-import StartupLayout from './CommonLayout';
+var state = kiwi.state;
+var Misc = kiwi.require('helpers/Misc');
+var StartupLayout = kiwi.require('components/startups/CommonLayout');
 
 export default {
     components: {
@@ -85,6 +102,9 @@ export default {
             recaptchaSiteId: '',
             recaptchaResponseCache: '',
             connectWithoutChannel: false,
+            age: null,
+            sex: null,
+            location: null,
         };
     },
     computed: {
@@ -206,7 +226,7 @@ export default {
                 encoding: _.trim(options.encoding),
                 direct: !!options.direct,
                 path: options.direct_path || '',
-                gecos: options.gecos,
+                gecos: this.buildGecos(),
             });
 
             if (!this.network && options.recaptchaSiteId) {
@@ -251,6 +271,12 @@ export default {
             let tmp = (nick || '').replace(/\?/g, () => Math.floor(Math.random() * 100).toString());
             return _.trim(tmp);
         },
+        buildGecos() {
+            return '[' +
+                (this.age || 'U') + '/' +
+                (this.sex || 'U') + '/' +
+                (this.location || 'U') + ']';
+        }
     },
 };
 </script>
@@ -279,6 +305,27 @@ export default {
 .kiwi-welcome-simple-error span {
     display: block;
     font-style: italic;
+}
+
+.kiwi-welcome-simple-age input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.kiwi-welcome-simple-age input[type=number]::-webkit-inner-spin-button,
+.kiwi-welcome-simple-age input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.kiwi-welcome-simple-sex {
+    font-weight: 600;
+    color: #b3b3bc;
+    display: inline-block;
+    margin-bottom: 0.8em;
+}
+
+.kiwi-welcome-simple-sex select {
+    border: 0;
 }
 
 .kiwi-welcome-simple-section-connection label {

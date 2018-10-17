@@ -8,13 +8,28 @@
         </div>
 
         <div class="kiwi-userbox-basicinfo">
-            <span class="kiwi-userbox-basicinfo-title">{{ $t('whois_realname') }}:</span>
-            <span class="kiwi-userbox-basicinfo-data">{{ user.realname }} </span>
+            <div v-if="realname">
+                <span class="kiwi-userbox-basicinfo-title">{{ $t('whois_realname') }}:</span>
+                <span class="kiwi-userbox-basicinfo-data">{{ realname }} </span>
+            </div>
             <span class="kiwi-userbox-basicinfo-title">{{ $t('whois_status') }}:</span>
             <span class="kiwi-userbox-basicinfo-data">
                 {{ user.away ? user.away : $t('whois_status_available') }}
             </span>
+            <div v-if="age">
+                <span class="kiwi-userbox-basicinfo-title">Age</span>
+                <span class="kiwi-userbox-basicinfo-data">{{age}}</span>
+            </div>
+            <div v-if="sex">
+                <span class="kiwi-userbox-basicinfo-title">Sex</span>
+                <span class="kiwi-userbox-basicinfo-data">{{sex}}</span>
+            </div>
+            <div v-if="location">
+                <span class="kiwi-userbox-basicinfo-title">Location</span>
+                <span class="kiwi-userbox-basicinfo-data">{{location}}</span>
+            </div>
         </div>
+
 
         <p class="kiwi-userbox-actions">
             <a class="kiwi-userbox-action" @click="openQuery">
@@ -131,7 +146,7 @@
 
 'kiwi public';
 
-import state from '@/libs/state';
+let state = kiwi.state;
 
 export default {
     props: ['buffer', 'network', 'user'],
@@ -139,7 +154,23 @@ export default {
         return {
             whoisRequested: false,
             whoisLoading: false,
+            realname: '',
+            age: '',
+            sex: '',
+            location: '',
         };
+    },
+    created() {
+        let result = this.user.realname.match(/\[(.+)\/(.+)\/(.+)\](.*)/);
+        let sex = {'M': 'Male', 'F': 'Female', 'O': 'Other'};
+        if (result && result.length === 5) {
+            this.age = result[1] === 'U' ? null : result[1];
+            this.sex = result[2] === 'U' ? null : sex[result[2]];
+            this.location = result[3] === 'U' ? null : result[3];
+            this.realname = result[4];
+        } else {
+            this.realname = this.user.realname;
+        }
     },
     computed: {
         // Channel modes differ on some IRCds so get them from the network options
