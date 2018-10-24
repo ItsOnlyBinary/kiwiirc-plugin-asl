@@ -1,7 +1,6 @@
-# Custom Startup for [Kiwi IRC] (https://kiwiirc.com)
+# Example Plugin for [Kiwi IRC] (https://kiwiirc.com)
 
-This plugin creates a customised startup screen for age/sex/location based off Welcome.vue  
-It then display's this data in a customised userbox based off UserBox.vue
+This plugin contains random examples of kiwiirc's api use
 
 #### Dependencies
 * node (https://nodejs.org/)
@@ -14,7 +13,7 @@ $ yarn
 $ yarn build
 ```
 
-The plugin will then be built into dist/plugin-custom-startup-asl.js
+The plugin will then be built into dist/plugin-example.js
 
 
 ## License

@@ -153,6 +153,10 @@ export default {
             options.showPassword :
             true;
 
+        this.age = Misc.queryStringVal('age');
+        this.sex = Misc.queryStringVal('sex');
+        this.location = Misc.queryStringVal('location');
+
         if (options.autoConnect && this.nick && this.channel) {
             this.startUp();
         }
@@ -272,10 +276,7 @@ export default {
             return _.trim(tmp);
         },
         buildGecos() {
-            return '[' +
-                (this.age || 'U') + '/' +
-                (this.sex || 'U') + '/' +
-                (this.location || 'U') + ']';
+            return (this.age || 'U') + ' ' + (this.sex || 'U') + ' ' + (this.location || 'U');
         }
     },
 };

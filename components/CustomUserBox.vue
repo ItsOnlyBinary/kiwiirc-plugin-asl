@@ -8,25 +8,21 @@
         </div>
 
         <div class="kiwi-userbox-basicinfo">
-            <div v-if="realname">
-                <span class="kiwi-userbox-basicinfo-title">{{ $t('whois_realname') }}:</span>
-                <span class="kiwi-userbox-basicinfo-data">{{ realname }} </span>
-            </div>
             <span class="kiwi-userbox-basicinfo-title">{{ $t('whois_status') }}:</span>
             <span class="kiwi-userbox-basicinfo-data">
                 {{ user.away ? user.away : $t('whois_status_available') }}
             </span>
-            <div v-if="age">
+            <div v-if="asl.age">
                 <span class="kiwi-userbox-basicinfo-title">Age</span>
-                <span class="kiwi-userbox-basicinfo-data">{{age}}</span>
+                <span class="kiwi-userbox-basicinfo-data">{{asl.age}}</span>
             </div>
-            <div v-if="sex">
+            <div v-if="asl.sex">
                 <span class="kiwi-userbox-basicinfo-title">Sex</span>
-                <span class="kiwi-userbox-basicinfo-data">{{sex}}</span>
+                <span class="kiwi-userbox-basicinfo-data">{{asl.sex}}</span>
             </div>
-            <div v-if="location">
+            <div v-if="asl.location">
                 <span class="kiwi-userbox-basicinfo-title">Location</span>
-                <span class="kiwi-userbox-basicinfo-data">{{location}}</span>
+                <span class="kiwi-userbox-basicinfo-data">{{asl.location}}</span>
             </div>
         </div>
 
@@ -154,25 +150,20 @@ export default {
         return {
             whoisRequested: false,
             whoisLoading: false,
-            realname: '',
-            age: '',
-            sex: '',
-            location: '',
         };
     },
-    created() {
-        let result = this.user.realname.match(/\[(.+)\/(.+)\/(.+)\](.*)/);
-        let sex = {'M': 'Male', 'F': 'Female', 'O': 'Other'};
-        if (result && result.length === 5) {
-            this.age = result[1] === 'U' ? null : result[1];
-            this.sex = result[2] === 'U' ? null : sex[result[2]];
-            this.location = result[3] === 'U' ? null : result[3];
-            this.realname = result[4];
-        } else {
-            this.realname = this.user.realname;
-        }
-    },
     computed: {
+        asl: function asl() {
+            let result = this.user.realname.match(/(\d+|U)\s([HMFOU])\s(.*)/);
+            let sex = {'M': 'Male', 'H': 'Homme', 'F': 'Female', 'O': 'Other'};
+            var a, s, l;
+            if (result && result.length === 4) {
+                a = result[1] === 'U' ? null : result[1];
+                s = result[2] === 'U' ? null : sex[result[2]];
+                l = result[3] === 'U' ? null : result[3];
+            }
+            return {age: a, sex: s, location: l};
+        },
         // Channel modes differ on some IRCds so get them from the network options
         availableChannelModes: function availableChannelModes() {
             let availableModes = [];
