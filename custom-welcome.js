@@ -7,27 +7,37 @@ kiwi.plugin('custom-welcome', (kiwi) => {
     kiwi.addStartup('custom-welcome', CustomWelcome);
     kiwi.replaceModule('components/UserBox', CustomUserBox);
 
+    kiwi.on('irc.join', function(event, net) {
+        if (event.gecos) {
+            setColour(net, event.nick , event.gecos);
+        }
+    });
+
     kiwi.on('irc.wholist', function(event, net) {
         event.users.forEach((user) => {
-            let userObj = kiwi.state.getUser(net.id, user.nick);
-            let asl = (user.nick === net.nick) ?
-                utils.getASL(net.gecos) :
-                utils.getASL(userObj.realname);
-
-            switch (asl.s) {
-            case 'Male':
-                userObj.colour = '#00F';
-                break;
-            case 'Female':
-                userObj.colour = '#F0F';
-                break;
-            case 'Other':
-                userObj.colour = '#0F0';
-                break;
-            default:
-                userObj.colour = '#000';
-            }
+            setColour(net, user.nick, user.real_name);
         });
     });
+
+    function setColour(net, nick, gecos) {
+        let asl = utils.getASL(gecos);
+        let colour;
+
+        switch (asl.s) {
+        case 'Male':
+            colour = '#00F';
+            break;
+        case 'Female':
+            colour = '#F0F';
+            break;
+        case 'Other':
+            colour = '#0F0';
+            break;
+        default:
+            colour = '#000';
+        }
+
+        kiwi.state.addUser(net, { nick, colour });
+    }
 });
 
