@@ -141,6 +141,9 @@ export default {
         let options = state.settings.startupOptions;
 
         this.nick = this.processNickRandomNumber(Misc.queryStringVal('nick') || options.nick || '');
+	this.age = Misc.queryStringVal('age') || '';
+	this.sex = Misc.queryStringVal('sex') || '';
+	this.location = Misc.queryStringVal('location') || '';
         this.password = options.password || '';
         this.channel = decodeURI(window.location.hash) || options.channel || '';
         this.showChannel = typeof options.showChannel === 'boolean' ?
