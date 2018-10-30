@@ -12,11 +12,11 @@ kiwi.plugin('custom-welcome', (kiwi) => {
     let icons = true;
     let colours = true;
     
-    if(kiwi.state.setting('asl.icons')) {
+    if(kiwi.state.setting('asl.icons') === false) {
         icons = kiwi.state.setting('asl.icons');
     }
 
-    if(kiwi.state.setting('asl.colours')) {
+    if(kiwi.state.setting('asl.colours') === false) {
         colours = kiwi.state.setting('asl.colours');
     }
     
