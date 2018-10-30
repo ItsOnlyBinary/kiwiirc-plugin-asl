@@ -37,8 +37,8 @@ kiwi.plugin('custom-welcome', (kiwi) => {
         event.users.forEach((user) => {
             kiwi.state.addUser(net, {
                 nick: user.nick,
-                colour: (colours == true ) ? getColour(event.gecos) : '',
-                gender : (icons == true ) ? getGender(event.gecos) : null ,
+                colour: (colours == true ) ? getColour(user.real_name) : '',
+                gender : (icons == true ) ? getGender(user.real_name) : null ,
             });
         });
     });
