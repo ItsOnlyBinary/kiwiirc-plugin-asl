@@ -28,7 +28,7 @@ kiwi.plugin('custom-welcome', (kiwi) => {
                 host: event.hostname,
                 realname: event.gecos,
                 colour: (colours == true ) ? getColour(event.gecos) : '',
-                gender : (icons == true ) ? getGender(user.real_name) : null ,
+                gender : (icons == true ) ? getGender(event.gecos) : null ,
             });
         }
     });
@@ -38,7 +38,7 @@ kiwi.plugin('custom-welcome', (kiwi) => {
             kiwi.state.addUser(net, {
                 nick: user.nick,
                 colour: (colours == true ) ? getColour(event.gecos) : '',
-                gender : (icons == true ) ? getGender(user.real_name) : null ,
+                gender : (icons == true ) ? getGender(event.gecos) : null ,
             });
         });
     });
