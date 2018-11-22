@@ -16,6 +16,8 @@ kiwi.plugin('custom-welcome', (kiwi) => {
                 realname: event.gecos,
                 colour: getColour(event.gecos),
             });
+        } else {
+            net.ircClient.who(event.nick);
         }
     });
 
