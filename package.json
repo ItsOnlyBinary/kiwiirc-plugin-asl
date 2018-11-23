@@ -1,7 +1,7 @@
 {
     "name": "plugin-custom-welcome-asl",
     "version": "0.0.1",
-    "main": "custom-welcome.js",
+    "main": "./src/plugin.js",
     "license": "Apache-2.0",
     "private": true,
     "scripts": {
@@ -16,6 +16,8 @@
         "babel-core": "^6.26.0",
         "babel-eslint": "^8.1.2",
         "babel-loader": "7.1.1",
+        "babel-plugin-transform-runtime": "^6.23.0",
+        "babel-preset-env": "^1.7.0",
         "css-loader": "^0.28.8",
         "eslint": "^4.15.0",
         "eslint-config-airbnb-base": "^12.1.0",
@@ -25,6 +27,7 @@
         "eslint-plugin-promise": "^3.4.0",
         "eslint-plugin-standard": "^3.0.1",
         "eslint-plugin-vue": "^4.5.0",
+        "exports-loader": "^0.7.0",
         "less": "^3.8.1",
         "less-loader": "^4.1.0",
         "style-loader": "^0.21.0",

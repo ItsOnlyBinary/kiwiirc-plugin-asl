@@ -33,22 +33,22 @@
                         type="password"
                     />
                     <input-text
-                        label="Age"
+                        label="Età"
                         v-model="age"
                         class="kiwi-welcome-simple-age"
                         type="number"
                     />
                     <div class="kiwi-welcome-simple-sex">
-                        <span >Sex: </span>
+                        <span >Sesso: </span>
                         <select v-model="sex">
-                            <option :value="null" selected disabled>Choose</option>
-                            <option value="M">Male</option>
-                            <option value="F">Female</option>
-                            <option value="O">Other</option>
+                            <option :value="null" selected disabled>Scegli ...</option>
+                            <option value="M">Uomo</option>
+                            <option value="F">Donna</option>
+                            <option value="O">Altro</option>
                         </select>
                     </div>
                     <input-text
-                        label="Location"
+                        label="Località"
                         v-model="location"
                     />
                     <input-text
@@ -141,9 +141,9 @@ export default {
         let options = state.settings.startupOptions;
 
         this.nick = this.processNickRandomNumber(Misc.queryStringVal('nick') || options.nick || '');
-    	this.age = Misc.queryStringVal('age') || '';
-    	this.sex = Misc.queryStringVal('sex') || '';
-    	this.location = Misc.queryStringVal('location') || '';
+    	this.age = Misc.queryStringVal('age') || options.age || '';
+    	this.sex = Misc.queryStringVal('sex') || options.sex || '';
+    	this.location = Misc.queryStringVal('location') || options.location || '';
         this.password = options.password || '';
         this.channel = decodeURI(window.location.hash) || options.channel || '';
         this.showChannel = typeof options.showChannel === 'boolean' ?

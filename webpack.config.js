@@ -3,9 +3,9 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 module.exports = {
     mode: 'production',
-    entry: './custom-welcome.js',
+    entry: './src/plugin.js',
     output: {
-        filename: 'plugin-custom-welcome-asl.js',
+        filename: 'asl.js',
     },
     module: {
         rules: [
@@ -15,7 +15,10 @@ module.exports = {
             },
             {
                 test: /\.js$/,
-                loader: 'babel-loader',
+                use: [{loader: 'exports-loader'}, {loader: 'babel-loader'}],
+                include: [
+                    path.join(__dirname, 'src')
+                ]
             },
             {
                 test: /\.css$/,
@@ -32,7 +35,7 @@ module.exports = {
     ],
     devtool: 'source-map',
     devServer: {
-        filename: 'plugin-custom-welcome-asl.js',
+        filename: 'asl.js',
         contentBase: path.join(__dirname, "dist"),
         compress: true,
         port: 9000
