@@ -29,7 +29,7 @@
                         v-if="show_password_box"
                         :label="$t('password')"
                         v-model="password"
-                        class="kiwi-welcome-simple-password input-text--reveal-value"
+                        class="kiwi-welcome-simple-password u-input-text--reveal-value"
                         type="password"
                     />
                     <input-text

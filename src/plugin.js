@@ -41,8 +41,7 @@ kiwi.plugin('custom-welcome', (kiwi) => {
         case 'Other':
             return '#0F0';
         default:
-            return '#000';
+            return 'default';
         }
     }
 });
-
