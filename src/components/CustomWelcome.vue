@@ -215,6 +215,9 @@ export default {
             if (net) {
                 net.nick = this.nick;
                 net.connection.password = this.password;
+                // Allow gecos to be changed if client saves its state,
+                // otherwise user has to forget network to update. 
+                net.gecos = this.buildGecos();
             }
 
             // If the network doesn't already exist, add a new one
