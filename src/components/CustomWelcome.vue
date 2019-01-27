@@ -85,6 +85,8 @@ var state = kiwi.state;
 var Misc = kiwi.require('helpers/Misc');
 var StartupLayout = kiwi.require('components/startups/CommonLayout');
 
+import * as utils from '../libs/utils.js';
+
 export default {
     components: {
         StartupLayout,
@@ -139,6 +141,8 @@ export default {
     },
     created: function created() {
         let options = state.settings.startupOptions;
+        let netAddress = _.trim(options.server);
+        let net = this.network || state.getNetworkFromAddress(netAddress);
 
         this.nick = this.processNickRandomNumber(Misc.queryStringVal('nick') || options.nick || '');
         this.password = options.password || '';
@@ -152,6 +156,14 @@ export default {
         this.showPass = typeof options.showPassword === 'boolean' ?
             options.showPassword :
             true;
+
+        if (net) {
+            let gecos = utils.getASL2(net.gecos);
+
+            this.age = gecos.a || '';
+            this.sex = gecos.s || '';
+            this.location = gecos.l || '';
+        }
 
         if (options.autoConnect && this.nick && this.channel) {
             this.startUp();
