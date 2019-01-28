@@ -33,7 +33,6 @@ module.exports = {
     plugins: [
         new VueLoaderPlugin()
     ],
-    devtool: 'source-map',
     devServer: {
         filename: 'asl.js',
         contentBase: path.join(__dirname, "dist"),
