@@ -1,7 +1,9 @@
 <template>
-    <startup-layout ref="layout" class="kiwi-welcome-simple">
-        <div slot="connection">
-            <template v-if="!network || network.state === 'disconnected'">
+    <startup-layout ref="layout"
+                    :class="{ 'kiwi-welcome-simple--recaptcha': recaptchaSiteId }"
+                    class="kiwi-welcome-simple"
+    >
+        <template v-slot:connection v-if="!network || network.state === 'disconnected'">
                 <form class="u-form kiwi-welcome-simple-form" @submit.prevent="formSubmit">
                     <h2 v-html="greetingText"/>
                     <div
@@ -20,13 +22,16 @@
                         v-model="nick"
                         class="kiwi-welcome-simple-nick"
                     />
-                    <label v-if="showPass" class="kiwi-welcome-simple-have-password">
+                <label
+                    v-if="showPass && toggablePass"
+                    class="kiwi-welcome-simple-have-password"
+                >
                         <input v-model="show_password_box" type="checkbox" >
                         <span> {{ $t('password_have') }} </span>
                     </label>
                     <input-text
                         v-focus
-                        v-if="show_password_box"
+                        v-if="showPass && (show_password_box || !toggablePass)"
                         :label="$t('password')"
                         v-model="password"
                         class="kiwi-welcome-simple-password input-text--reveal-value"
@@ -72,19 +77,20 @@
                     />
                 </form>
             </template>
-            <template v-else-if="network.state !== 'connected'">
+            <template v-slot:connection v-else-if="network.state !== 'connected'">
                 <i class="fa fa-spin fa-spinner" aria-hidden="true"/>
             </template>
-        </div>
     </startup-layout>
 </template>
 
 <script>
 
-var state = kiwi.state;
-var Misc = kiwi.require('helpers/Misc');
-var StartupLayout = kiwi.require('components/startups/CommonLayout');
-
+let state = kiwi.state;
+let Misc = kiwi.require('helpers/Misc');
+let StartupLayout = kiwi.require('components/startups/CommonLayout');
+let Logger = kiwi.require('libs/Logger');
+let log = Logger.namespace('Welcome.vue');
+	
 export default {
     components: {
         StartupLayout,
@@ -97,6 +103,7 @@ export default {
             password: '',
             showChannel: true,
             showPass: true,
+            toggablePass: true,
             showNick: true,
             show_password_box: false,
             recaptchaSiteId: '',
@@ -127,10 +134,38 @@ export default {
                 ready = false;
             }
 
+            let nickPatternStr = this.$state.setting('startupOptions.nick_format');
+            let nickPattern = '';
+            if (!nickPatternStr) {
             // Nicks cannot start with [0-9- ]
             // ? is not a valid nick character but we allow it as it gets replaced
             // with a number.
-            if (!this.nick.match(/^[a-z_\\[\]{}^`|][a-z0-9_\-\\[\]{}^`|]*$/i)) {
+                nickPattern = /^[a-z_\\[\]{}^`|][a-z0-9_\-\\[\]{}^`|]*$/i;
+            } else {
+                // Support custom pattern matches. Eg. only '@example.com' may be allowed
+                // on some IRCDs
+                let pattern = '';
+                let flags = '';
+                if (nickPatternStr[0] === '/') {
+                    // Custom regex
+                    let pos = nickPatternStr.lastIndexOf('/');
+                    pattern = nickPatternStr.substring(1, pos);
+                    flags = nickPatternStr.substr(pos + 1);
+                } else {
+                    // Basic contains rule
+                    pattern = _.escapeRegExp(nickPatternStr);
+                    flags = 'i';
+                }
+
+                try {
+                    nickPattern = new RegExp(pattern, flags);
+                } catch (error) {
+                    log.error('Nick format error: ' + error.message);
+                    return false;
+                }
+            }
+
+            if (!this.nick.match(nickPattern)) {        
                 ready = false;
             }
 
@@ -145,7 +180,7 @@ export default {
     	this.sex = Misc.queryStringVal('sex') || options.sex || '';
     	this.location = Misc.queryStringVal('location') || options.location || '';
         this.password = options.password || '';
-        this.channel = decodeURI(window.location.hash) || options.channel || '';
+        this.channel = decodeURIComponent(window.location.hash) || options.channel || '';
         this.showChannel = typeof options.showChannel === 'boolean' ?
             options.showChannel :
             true;
@@ -155,12 +190,15 @@ export default {
         this.showPass = typeof options.showPassword === 'boolean' ?
             options.showPassword :
             true;
-
-        if (options.autoConnect && this.nick && this.channel) {
-            this.startUp();
-        }
+        this.toggablePass = typeof options.toggablePassword === 'boolean' ?
+            options.toggablePassword :
+            true;
 
         this.connectWithoutChannel = !!options.allowNoChannel;
+	
+        if (options.autoConnect && this.nick && (this.channel || this.connectWithoutChannel)) {
+            this.startUp();
+        }
 
         this.recaptchaSiteId = options.recaptchaSiteId || '';
     },
@@ -213,14 +251,6 @@ export default {
             // Check if we have this network already
             let net = this.network || state.getNetworkFromAddress(netAddress);
 
-            // If we retreived an existing network, update the nick+password with what
-            // the user has just put in place
-            if (net) {
-                net.nick = this.nick;
-                net.gecos = this.buildGecos();
-                net.connection.password = this.password;
-            }
-
             // If the network doesn't already exist, add a new one
             net = net || state.addNetwork('Network', this.nick, {
                 server: netAddress,
@@ -232,6 +262,12 @@ export default {
                 path: options.direct_path || '',
                 gecos: this.buildGecos(),
             });
+
+            // If we retreived an existing network, update the nick+password with what
+            // the user has just put in place
+            net.connection.nick = this.nick;
+            net.password = this.password;
+            net.gecos = this.buildGecos();
 
             if (!this.network && options.recaptchaSiteId) {
                 net.captchaResponse = this.captchaResponse();
@@ -296,8 +332,19 @@ export default {
 
 .kiwi-welcome-simple-form {
     width: 90%;
+    max-width: 250px;
     border-radius: 0.5em;
     padding: 1em;
+}
+
+.kiwi-welcome-simple--recaptcha .kiwi-welcome-simple-form {
+    width: 333px;
+    max-width: 333px;
+    box-sizing: border-box;
+}
+
+.g-recaptcha {
+    margin-bottom: 10px;
 }
 
 .kiwi-welcome-simple-error {
@@ -339,7 +386,7 @@ export default {
     padding: 0 0.5em;
 }
 
-.kiwi-welcome-simple-section-connection .input-text input[type="text"] {
+.kiwi-welcome-simple-section-connection .u-input-text input[type="text"] {
     margin-top: 5px;
     padding: 0.3em 1em;
     width: 100%;
@@ -347,7 +394,7 @@ export default {
     box-sizing: border-box;
 }
 
-.kiwi-welcome-simple .input-text {
+.kiwi-welcome-simple .u-input-text {
     font-weight: 600;
     opacity: 0.6;
     font-size: 1.2em;
@@ -364,7 +411,7 @@ export default {
     margin-top: 2px;
 }
 
-.kiwi-welcome-simple .g-recaptcha {
+.kiwi-welcome-simple .kiwi-g-recaptcha {
     margin-bottom: 10px;
 }
 
@@ -421,6 +468,7 @@ export default {
     margin-top: -0.5em;
     left: 50%;
     margin-left: -40px;
+    color: black;
 }
 
 /** Smaller screen... **/
@@ -451,7 +499,6 @@ export default {
         left: 48%;
         top: 50%;
         margin-top: -50px;
-        color: #fff;
     }
 }
 

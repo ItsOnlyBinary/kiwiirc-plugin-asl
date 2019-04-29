@@ -6,26 +6,40 @@
             user.ignore ? 'kiwi-nicklist-user--ignore' : '',
             user.gender ? 'kiwi-nicklist-user--gender-' + user.gender : '',
         ]"
+        :data-nick="(user.nick||'').toLowerCase()"
         class="kiwi-nicklist-user"
         @click="nicklist.openUserbox(user)"
     >
+        <away-status-indicator
+            :network="network"
+            :user="user"
+            :toggle="false"
+        />
         <span class="kiwi-nicklist-user-prefix">{{ nicklist.userModePrefix(user) }}</span>
-        <span :style="{ 'color': userColour }"
-              class="kiwi-nicklist-user-nick"
+        <span
+            :style="{ 'color': userColour }"
+            class="kiwi-nicklist-user-nick"
         >{{ user.nick }}
         </span>
         <span class="kiwi-nicklist-messageuser" @click.stop="nicklist.openQuery(user)">
             <i class="fa fa-comment" aria-hidden="true"/>
         </span>
+        <typing-status-indicator :user="user" :buffer="nicklist.buffer" />
     </li>
 </template>
 
 <script>
-
 'kiwi public';
 
+let AwayStatusIndicator = kiwi.require('components/startups/AwayStatusIndicator');
+let TypingStatusIndicator = kiwi.require('components/startups/TypingStatusIndicator');
+
 export default {
-    props: ['user', 'nicklist'],
+    components: {
+        AwayStatusIndicator,
+        TypingStatusIndicator,
+    },
+    props: ['network', 'user', 'nicklist'],
     computed: {
         userColour() {
             if (this.nicklist.useColouredNicks) {
@@ -33,7 +47,6 @@ export default {
             }
             return '';
         },
-
     },
 };
 </script>
@@ -42,23 +55,13 @@ export default {
 
 .kiwi-nicklist-user {
     line-height: 26px;
-    padding: 0 16px 0 12px;
+    padding: 0 12px 0 12px;
+    border-left: 4px solid;
     margin: 0;
     position: relative;
     box-sizing: border-box;
     transition: all 0.1s;
     cursor: pointer;
-}
-
-.kiwi-nicklist-user--away .kiwi-nicklist-user-nick {
-    opacity: 0.5;
-    color:grey !important;
-}
-
-.kiwi-nicklist-user--away .kiwi-nicklist-user-nick::after {
-    content:"Away";
-    font-size: 0.25em;
-    vertical-align: super;
 }
 
 .kiwi-nicklist-user--gender-Male .kiwi-nicklist-user-nick::after {
@@ -103,7 +106,6 @@ export default {
     font-family: fontawesome;
 }
 
-
 .kiwi-nicklist-user-nick {
     font-weight: bold;
     cursor: pointer;
@@ -114,9 +116,13 @@ export default {
     content: '\f075';
     right: -1em;
     font-family: fontAwesome, sans-serif;
-    line-height: 30px;
+    line-height: 26px;
     opacity: 0;
-    transition: all 0.1s;
+}
+
+.kiwi-nicklist-messageuser:hover {
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
 .kiwi-nicklist-user:hover .kiwi-nicklist-messageuser {
