@@ -31,8 +31,8 @@
 <script>
 'kiwi public';
 
-let AwayStatusIndicator = kiwi.require('components/startups/AwayStatusIndicator');
-let TypingStatusIndicator = kiwi.require('components/startups/TypingStatusIndicator');
+let AwayStatusIndicator = kiwi.require('components/AwayStatusIndicator');
+let TypingStatusIndicator = kiwi.require('components/TypingStatusIndicator');
 
 export default {
     components: {
