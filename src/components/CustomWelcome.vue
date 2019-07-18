@@ -4,7 +4,7 @@
                     class="kiwi-welcome-simple"
     >
         <template v-slot:connection v-if="!network || network.state === 'disconnected'">
-                <form class="u-form kiwi-welcome-simple-form" @submit.prevent="formSubmit">
+                <form class="u-form u-form--big kiwi-welcome-simple-form" @submit.prevent="formSubmit">
                     <h2 v-html="greetingText"/>
                     <div
                         v-if="network && (network.last_error || network.state_error)"
@@ -16,27 +16,30 @@
                         </span>
                     </div>
 
-                    <input-text
-                        v-if="showNick"
-                        :label="$t('nick')"
-                        v-model="nick"
-                        class="kiwi-welcome-simple-nick"
-                    />
-                <label
-                    v-if="showPass && toggablePass"
-                    class="kiwi-welcome-simple-have-password"
-                >
+                <input-text v-model="nick" :label="$t('nick')" type="text" />
+	
+                <div v-if="showPass && toggablePass" class="kiwi-welcome-simple-input-container">
+                    <label
+                        class="kiwi-welcome-simple-have-password"
+                    >
                         <input v-model="show_password_box" type="checkbox" >
                         <span> {{ $t('password_have') }} </span>
                     </label>
+                </div>
+	
+                <div v-if="showPass && (show_password_box || !toggablePass)"
+                     class="kiwi-welcome-simple-input-container"
+                >
                     <input-text
-                        v-focus
-                        v-if="showPass && (show_password_box || !toggablePass)"
-                        :label="$t('password')"
-                        v-model="password"
-                        class="kiwi-welcome-simple-password input-text--reveal-value"
-                        type="password"
-                    />
+	                        v-focus
+	                        v-model="password"
+	                        :show-plain-text="true"
+	                        :label="$t('password')"
+	                        type="password"
+	                    />
+                </div>
+                <div class="kiwi-welcome-simple-asl-container">
+
                     <input-text
                         label="Età"
                         v-model="age"
@@ -44,25 +47,28 @@
                         type="number"
                     />
                     <div class="kiwi-welcome-simple-sex">
-                        <span >Sesso: </span>
-                        <select v-model="sex">
+                        <label class="kiwi-welcome-simple-sex">Sesso</label>
+                        <select v-model="sex" label="Sesso">
                             <option :value="null" selected disabled>Scegli ...</option>
                             <option value="M">Uomo</option>
                             <option value="F">Donna</option>
                             <option value="O">Altro</option>
                         </select>
                     </div>
+
+                </div>
+
                     <input-text
                         label="Località"
                         v-model="location"
                     />
-                    <input-text
-                        v-if="showChannel"
-                        :label="$t('channel')"
-                        v-model="channel"
-                        class="kiwi-welcome-simple-channel"
-                    />
 
+                    <div v-if="showChannel" class="kiwi-welcome-simple-input-container">
+	                    <input-text
+	                        v-model="channel"
+	                        :label="$t('channel')"
+	                    />
+                    </div>
                     <div
                         v-if="recaptchaSiteId"
                         :data-sitekey="recaptchaSiteId"
@@ -77,7 +83,7 @@
                     />
                 </form>
             </template>
-            <template v-slot:connection v-else-if="network.state !== 'connected'">
+            <template v-slot:connection v-else>
                 <i class="fa fa-spin fa-spinner" aria-hidden="true"/>
             </template>
     </startup-layout>
@@ -109,6 +115,7 @@ export default {
             recaptchaSiteId: '',
             recaptchaResponseCache: '',
             connectWithoutChannel: false,
+            showPlainText: false,
             age: null,
             sex: null,
             location: null,
@@ -328,30 +335,56 @@ export default {
 
 <style>
 
-.kiwi-welcome-simple h2 {
+/* Containers */
+
+
+.kiwi-startup-common-section-connection {
+-webkit-box-align: center;
+align-items: center;
+-webkit-box-pack: center;
+justify-content: center;
+}
+
+.kiwi-startup-common-section-connection {
+	overflow-y:auto;
+}
+
+.kiwi-startup-common-section-info {
+-webkit-box-align: center;
+align-items: center;
+-webkit-box-pack: center;
+padding:0px !important;
+}
+
+.kiwi-startup-common-section-info-content {
+	margin:0px !important;
+	padding:0px !important;
+}
+
+form.kiwi-welcome-simple-form {
+    width: 70%;
+    padding: 0 20px;
+}
+
+
+@media (max-width: 1025px) {
+    form.kiwi-welcome-simple-form {
+        width: 100%;
+    }
+}
+
+form.kiwi-welcome-simple-form h2 {
+    margin: 0 0 20px 0;
+    padding: 0;
+    cursor: default;
+    font-weight: 600;
     font-size: 1.7em;
     text-align: center;
-    padding: 0;
-    margin: 0.5em 0 1em 0;
 }
 
-.kiwi-welcome-simple-form {
-    width: 90%;
-    max-width: 250px;
-    border-radius: 0.5em;
-    padding: 1em;
+form.kiwi-welcome-simple-form label {
+    margin-bottom:5px !important;
 }
-
-.kiwi-welcome-simple--recaptcha .kiwi-welcome-simple-form {
-    width: 333px;
-    max-width: 333px;
-    box-sizing: border-box;
-}
-
-.g-recaptcha {
-    margin-bottom: 10px;
-}
-
 .kiwi-welcome-simple-error {
     text-align: center;
     margin: 1em 0;
@@ -374,7 +407,6 @@ export default {
 }
 
 .kiwi-welcome-simple-sex {
-    font-weight: 600;
     color: #b3b3bc;
     display: inline-block;
     margin-bottom: 0.8em;
@@ -384,133 +416,46 @@ export default {
     border: 0;
 }
 
-.kiwi-welcome-simple-section-connection label {
-    text-align: left;
-    display: inline-block;
-    margin-bottom: 0.8em;
-    padding: 0 0.5em;
-}
-
-.kiwi-welcome-simple-section-connection .u-input-text input[type="text"] {
-    margin-top: 5px;
-    padding: 0.3em 1em;
+.kiwi-welcome-simple-input-container {
     width: 100%;
-    font-size: 1.1em;
-    box-sizing: border-box;
+    height: auto;
+    position: relative;
+    margin: 0 0 10x 0;
 }
 
-.kiwi-welcome-simple .u-input-text {
-    font-weight: 600;
-    opacity: 0.6;
-    font-size: 1.2em;
-    margin-bottom: 0.8em;
+.kiwi-welcome-simple-input-container .u-input-text {
+
+    margin-top: 0px !important;
+    
 }
 
-.kiwi-welcome-simple-form input {
-    padding: 0.5em;
-}
-
-.kiwi-welcome-simple-have-password input {
-    font-size: 0.8em;
-    margin: 0.8em 0;
-    margin-top: 2px;
-}
-
-.kiwi-welcome-simple .kiwi-g-recaptcha {
-    margin-bottom: 10px;
-}
-
-.kiwi-welcome-simple .u-form label span {
-    font-size: 1.1em;
-    margin-left: 5px;
-}
-
-.kiwi-welcome-simple-start {
-    font-size: 1.1em;
-    cursor: pointer;
-}
-
-.kiwi-welcome-simple-start[disabled] {
-    cursor: not-allowed;
-    opacity: 0.65;
-}
-
-.kiwi-welcome-simple-channel {
-    margin-bottom: 0.8em;
-}
-
-.kiwi-welcome-simple-form .u-submit {
+.kiwi-welcome-simple-asl-container {
     width: 100%;
-    line-height: 50px;
-    padding: 0;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 400;
-    text-shadow: none;
-    margin: 0;
-    transition: all 0.2s;
-    border: none;
+    height: auto;
+    position: relative;
+    margin: 0 0 10px 0;
+    display:flex;
 }
 
-.kiwi-welcome-simple .help {
-    position: absolute;
-    bottom: 0.2em;
-    font-size: 0.8em;
-    width: 50%;
-    text-align: center;
+.kiwi-welcome-simple-input-container:last-of-type {
+    margin-top:0px !important;
+    margin-bottom:0px !important;
 }
 
-.kiwi-welcome-simple .help a {
-    text-decoration: underline;
-}
-
-/* Styling the preloader */
+/* Make the preloader icon larger */
 .kiwi-welcome-simple .fa-spinner {
-    position: absolute;
-    top: 50%;
-    z-index: 999;
-    font-size: 100px;
-    margin-top: -0.5em;
-    left: 50%;
-    margin-left: -40px;
-    color: black;
+    font-size:6em;
 }
 
-/** Smaller screen... **/
-@media screen and (max-width: 850px) {
-    .kiwi-welcome-simple-form {
-        left: auto;
-        margin: 20px auto 20px auto;
-        z-index: 100;
-        position: relative;
-        top: auto;
-        align-self: flex-start;
+@media (max-height: 720px) {
+
+    .kiwi-startup-common-section-connection {
+    -webkit-box-align: start;
+    align-items: start;
+    -webkit-box-pack: start;
+    justify-content: center;
     }
 
-    .kiwi-welcome-simple p.help {
-        position: absolute;
-        bottom: 20px;
-        width: 100%;
-        color: #fff;
-        z-index: 100;
-    }
-
-    .kiwi-welcome-simple p.help a {
-        color: #fff;
-    }
-
-    .fa-spinner {
-        position: absolute;
-        left: 48%;
-        top: 50%;
-        margin-top: -50px;
-    }
-}
-
-@media (max-width: 400px) {
-    .kiwi-welcome-simple-form {
-        width: 90%;
-    }
 }
 
 </style>
