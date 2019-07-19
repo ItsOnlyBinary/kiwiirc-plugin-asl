@@ -48,7 +48,7 @@
                     />
                     <div class="kiwi-welcome-simple-sex">
                         <label class="kiwi-welcome-simple-sex">Sesso</label>
-                        <select v-model="sex" label="Sesso">
+                        <select v-model="sex" class="kiwi-welcome-simple-sex-select" label="Sesso">
                             <option :value="null" selected disabled>Scegli ...</option>
                             <option value="M">Uomo</option>
                             <option value="F">Donna</option>
@@ -353,6 +353,7 @@ justify-content: center;
 -webkit-box-align: center;
 align-items: center;
 -webkit-box-pack: center;
+justify-content: center;
 padding:0px !important;
 }
 
@@ -406,17 +407,53 @@ form.kiwi-welcome-simple-form label {
     margin: 0;
 }
 
+
+.kiwi-welcome-simple-asl-container {
+    width: 100%;
+    height: auto;
+    position: relative;
+    margin: 0 0 0px 0;
+    display:flex;
+}
+
+.kiwi-welcome-simple-age {
+
+}
+
 .kiwi-welcome-simple-sex {
-    color: #b3b3bc;
-    display: inline-block;
-    margin-bottom: 0.8em;
+    flex:1;
+    margin-left:5px;   
 }
 
-.kiwi-welcome-simple-sex select {
-    border: 0;
+.kiwi-welcome-simple-sex-select {
+   -webkit-appearance: button;
+   -webkit-border-radius: 2px;
+   -webkit-box-shadow: 0px;
+   -webkit-padding-end: 20px;
+   -webkit-padding-start: 2px;
+   -webkit-user-select: none;
+   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' height='32px' width='24px'><text x='0' y='24' fill='grey' style='font: 24px Verdana;'>\00BB</text></svg>"), -webkit-linear-gradient(#FAFAFA, #F4F4F4 40%, #E5E5E5);
+   background-position:95% center;
+   background-repeat: no-repeat;
+   border: 1px solid  !important;
+   border-color: #e2e2e2 !important;
+   border-radius: 5px;
+   color: #555;
+   font-size: inherit;
+   overflow: hidden;
+   padding: 15px 15px;
+   text-overflow: ellipsis;
+   white-space: nowrap;
+   box-sizing: border-box;
+   width:100%;
 }
 
-.kiwi-welcome-simple-input-container {
+.kiwi-welcome-simple-sex-select:focus {
+    outline: 0;
+    border-color:#42b992 !important;
+}
+
+.kiwi-welcome-simple-form .kiwi-welcome-simple-input-container {
     width: 100%;
     height: auto;
     position: relative;
@@ -424,17 +461,7 @@ form.kiwi-welcome-simple-form label {
 }
 
 .kiwi-welcome-simple-input-container .u-input-text {
-
     margin-top: 0px !important;
-    
-}
-
-.kiwi-welcome-simple-asl-container {
-    width: 100%;
-    height: auto;
-    position: relative;
-    margin: 0 0 10px 0;
-    display:flex;
 }
 
 .kiwi-welcome-simple-input-container:last-of-type {
@@ -452,7 +479,7 @@ form.kiwi-welcome-simple-form label {
     .kiwi-startup-common-section-connection {
     -webkit-box-align: start;
     align-items: start;
-    -webkit-box-pack: start;
+    -webkit-box-pack: center;
     justify-content: center;
     }
 
