@@ -6,13 +6,12 @@
         <div class="kiwi-userbox-header">
             <h3>
                 <away-status-indicator :network="network" :user="user"/> {{ user.nick }}
-                <span v-if="userMode" class="kiwi-userbox-modestring">+ {{ userMode }}</span>
+                <span v-if="userMode" class="kiwi-userbox-modestring">+{{ userMode }}</span>
             </h3>
             <div class="kiwi-userbox-usermask">{{ user.username }}@{{ user.host }}</div>
         </div>
 
         <div class="kiwi-userbox-basicinfo">
-
             <div v-if="asl.a">
                 <span class="kiwi-userbox-basicinfo-title">Age</span>
                 <span class="kiwi-userbox-basicinfo-data">{{asl.a}}</span>
@@ -26,7 +25,6 @@
                 <span class="kiwi-userbox-basicinfo-data">{{asl.l}}</span>
             </div>
         </div>
-
 
         <p class="kiwi-userbox-actions">
             <a v-if="!isSelf" class="kiwi-userbox-action" @click="openQuery">
@@ -143,10 +141,9 @@
 
 <script>
 
-'kiwi public';
-
 import * as utils from '../libs/utils.js';
 let TextFormatting = kiwi.require('helpers/TextFormatting');
+let IrcdDiffs = kiwi.require('helpers/IrcdDiffs');
 let AwayStatusIndicator = kiwi.require('components/AwayStatusIndicator');
 
 export default {
@@ -158,7 +155,6 @@ export default {
         return {
             whoisRequested: false,
             whoisLoading: false,
-            realname: '',
         };
     },
     computed: {
@@ -169,7 +165,6 @@ export default {
         availableChannelModes: function availableChannelModes() {
             let availableModes = [];
             let prefixes = this.network.ircClient.network.options.PREFIX;
-            // TODO: Double check these modes mean the correct things
             let knownPrefix = {
                 q: 'Owner',
                 a: 'Admin',
@@ -177,6 +172,17 @@ export default {
                 h: 'Half-Operator',
                 v: 'Voice',
             };
+
+            if (!IrcdDiffs.isAChannelModeAdmin(this.network)) {
+                delete knownPrefix.a;
+            }
+            if (!IrcdDiffs.isQChannelModeOwner(this.network)) {
+                delete knownPrefix.q;
+            }
+            if (!IrcdDiffs.supportsHalfOp(this.network)) {
+                delete knownPrefix.h;
+            }
+
             prefixes.forEach((prefix) => {
                 let mode = prefix.mode;
                 if (knownPrefix[mode]) {
@@ -252,7 +258,7 @@ export default {
                 channels[i] = TextFormatting.linkifyChannels(channels[i]);
             }
             return channels.join(' ');
-    },
+        },
         isSelf() {
             return this.user === this.network.currentUser();
         },
@@ -361,9 +367,9 @@ export default {
 }
 
 .kiwi-userbox-header h3 {
-        width: 100%;
-        padding: 0;
-        cursor: default;
+    width: 100%;
+    padding: 0;
+    cursor: default;
     display: inline-block;
 }
 
@@ -429,7 +435,7 @@ export default {
         margin: 0 2px;
         transition: all 0.3s;
         border-radius: 3px;
-        }
+    }
 
     label {
         display: block;

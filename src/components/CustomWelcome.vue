@@ -4,82 +4,88 @@
                     class="kiwi-welcome-simple"
     >
         <template v-slot:connection v-if="!network || network.state === 'disconnected'">
-                <form class="u-form kiwi-welcome-simple-form" @submit.prevent="formSubmit">
-                    <h2 v-html="greetingText"/>
-                    <div
-                        v-if="network && (network.last_error || network.state_error)"
-                        class="kiwi-welcome-simple-error"
-                    >
-                        We couldn't connect to the server :(
-                        <span>
-                            {{ network.last_error || readableStateError(network.state_error) }}
-                        </span>
-                    </div>
-
-                    <input-text
-                        v-if="showNick"
-                        :label="$t('nick')"
-                        v-model="nick"
-                        class="kiwi-welcome-simple-nick"
-                    />
-                <label
-                    v-if="showPass && toggablePass"
-                    class="kiwi-welcome-simple-have-password"
+            <form class="u-form u-form--big kiwi-welcome-simple-form" @submit.prevent="formSubmit">
+                <h2 v-html="greetingText"/>
+                <div
+                    v-if="network && (network.last_error || network.state_error)"
+                    class="kiwi-welcome-simple-error"
                 >
+                    We couldn't connect to the server :(
+                    <span>
+                        {{ network.last_error || readableStateError(network.state_error) }}
+                    </span>
+                </div>
+
+                <input-text v-model="nick" :label="$t('nick')" type="text" />
+
+                <div v-if="showPass && toggablePass" class="kiwi-welcome-simple-input-container">
+                    <label
+                        class="kiwi-welcome-simple-have-password"
+                    >
                         <input v-model="show_password_box" type="checkbox" >
                         <span> {{ $t('password_have') }} </span>
                     </label>
+                </div>
+
+                <div v-if="showPass && (show_password_box || !toggablePass)"
+                     class="kiwi-welcome-simple-input-container"
+                >
                     <input-text
                         v-focus
-                        v-if="showPass && (show_password_box || !toggablePass)"
-                        :label="$t('password')"
                         v-model="password"
-                        class="kiwi-welcome-simple-password u-input-text--reveal-value"
+                        :show-plain-text="true"
+                        :label="$t('password')"
                         type="password"
                     />
+                </div>
+                <div class="kiwi-welcome-simple-asl-container">
+                <input-text
+                    label="Age"
+                    v-model="age"
+                    class="kiwi-welcome-simple-age"
+                    type="number"
+                />
+                <div class="kiwi-welcome-simple-sex">
+                    <label>Sex</label>
+                    <select v-model="sex">
+                        <option :value="null" selected disabled>Select</option>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                        <option value="O">Other</option>
+                    </select>
+                </div>
+                </div>
+                <input-text
+                    label="Location"
+                    v-model="location"
+                />
+
+                <div v-if="showChannel" class="kiwi-welcome-simple-input-container">
                     <input-text
-                        label="Age"
-                        v-model="age"
-                        class="kiwi-welcome-simple-age"
-                        type="number"
-                    />
-                    <div class="kiwi-welcome-simple-sex">
-                        <span >Sex: </span>
-                        <select v-model="sex">
-                            <option :value="null" selected disabled>Choose</option>
-                            <option value="M">Male</option>
-                            <option value="F">Female</option>
-                            <option value="O">Other</option>
-                        </select>
-                    </div>
-                    <input-text
-                        label="Location"
-                        v-model="location"
-                    />
-                    <input-text
-                        v-if="showChannel"
-                        :label="$t('channel')"
                         v-model="channel"
-                        class="kiwi-welcome-simple-channel"
+                        :label="$t('channel')"
                     />
+                </div>
 
-                    <div
-                        v-if="recaptchaSiteId"
-                        :data-sitekey="recaptchaSiteId"
-                        class="g-recaptcha"
-                    />
+                <div
+                    v-if="recaptchaSiteId"
+                    :data-sitekey="recaptchaSiteId"
+                    class="g-recaptcha"
+                />
 
-                    <button
-                        :disabled="!readyToStart"
-                        class="u-button u-button-primary u-submit kiwi-welcome-simple-start"
-                        type="submit"
-                        v-html="buttonText"
-                    />
-                </form>
-            </template>
-        <template v-slot:connection v-else-if="network.state !== 'connected'">
-                <i class="fa fa-spin fa-spinner" aria-hidden="true"/>
-            </template>
+                <button
+                    :disabled="!readyToStart"
+                    class="u-button u-button-primary u-submit kiwi-welcome-simple-start"
+                    type="submit"
+                    v-html="buttonText"
+                />
+
+                <div v-html="footerText"/>
+            </form>
+        </template>
+        <template v-slot:connection v-else>
+            <i class="fa fa-spin fa-spinner" aria-hidden="true"/>
+        </template>
     </startup-layout>
 </template>
 
@@ -87,8 +93,10 @@
 
 let state = kiwi.state;
 let Misc = kiwi.require('helpers/Misc');
-let StartupLayout = kiwi.require('components/startups/CommonLayout');
 let Logger = kiwi.require('libs/Logger');
+let BouncerProvider = kiwi.require('libs/BouncerProvider');
+let StartupLayout = kiwi.require('components/startups/CommonLayout');
+
 let log = Logger.namespace('Welcome.vue');
 
 export default {
@@ -109,6 +117,7 @@ export default {
             recaptchaSiteId: '',
             recaptchaResponseCache: '',
             connectWithoutChannel: false,
+            showPlainText: false,
             age: null,
             sex: null,
             location: null,
@@ -120,6 +129,12 @@ export default {
             return typeof greeting === 'string' ?
                 greeting :
                 this.$t('start_greeting');
+        },
+        footerText: function footerText() {
+            let footer = state.settings.startupOptions.footerText;
+            return typeof footer === 'string' ?
+                footer :
+                '';
         },
         buttonText: function buttonText() {
             let greeting = state.settings.startupOptions.buttonText;
@@ -134,12 +149,17 @@ export default {
                 ready = false;
             }
 
+            // If toggling the password is is disabled, assume it is required
+            if (!this.toggablePass && !this.password) {
+                ready = false;
+            }
+
             let nickPatternStr = this.$state.setting('startupOptions.nick_format');
             let nickPattern = '';
             if (!nickPatternStr) {
-            // Nicks cannot start with [0-9- ]
-            // ? is not a valid nick character but we allow it as it gets replaced
-            // with a number.
+                // Nicks cannot start with [0-9- ]
+                // ? is not a valid nick character but we allow it as it gets replaced
+                // with a number.
                 nickPattern = /^[a-z_\\[\]{}^`|][a-z0-9_\-\\[\]{}^`|]*$/i;
             } else {
                 // Support custom pattern matches. Eg. only '@example.com' may be allowed
@@ -175,7 +195,21 @@ export default {
     created: function created() {
         let options = state.settings.startupOptions;
 
-        this.nick = this.processNickRandomNumber(Misc.queryStringVal('nick') || options.nick || '');
+        // Take some settings from a previous network if available
+        let previousNet = null;
+        if (options.server.trim()) {
+            previousNet = state.getNetworkFromAddress(options.server.trim());
+        }
+
+        if (Misc.queryStringVal('nick')) {
+            this.nick = Misc.queryStringVal('nick');
+        } else if (previousNet && previousNet.connection.nick) {
+            this.nick = previousNet.connection.nick;
+        } else {
+            this.nick = options.nick;
+        }
+
+        this.nick = this.processNickRandomNumber(this.nick || '');
         this.password = options.password || '';
         this.channel = decodeURIComponent(window.location.hash) || options.channel || '';
         this.showChannel = typeof options.showChannel === 'boolean' ?
@@ -192,6 +226,16 @@ export default {
             true;
 
         this.connectWithoutChannel = !!options.allowNoChannel;
+
+        if (options.bouncer) {
+            this.toggablePass = false;
+            this.showPass = true;
+            this.showChannel = false;
+            this.connectWithoutChannel = true;
+
+            let bouncer = new BouncerProvider(this.$state);
+            bouncer.enable(options.server, options.port, options.tls, options.direct, options.path);
+        }
 
         if (options.autoConnect && this.nick && (this.channel || this.connectWithoutChannel)) {
             this.startUp();
@@ -237,7 +281,14 @@ export default {
             }
         },
         startUp: function startUp() {
-            let options = state.settings.startupOptions;
+            let options = Object.assign({}, state.settings.startupOptions);
+
+            // If a server isn't specified in the config, set some defaults
+            // The webircgateway will have a default network set and will connect
+            // there instead. This just removes the requirement of specifying the same
+            // irc network address in both the server-side and client side configs
+            options.server = options.server || 'default';
+            options.port = options.port || 6667;
 
             if (!this.captchaSuccess()) {
                 return;
@@ -248,22 +299,32 @@ export default {
             // Check if we have this network already
             let net = this.network || state.getNetworkFromAddress(netAddress);
 
+            let password = this.password;
+            if (options.bouncer) {
+                password = `${this.nick}:${this.password}`;
+            }
+
             // If the network doesn't already exist, add a new one
             net = net || state.addNetwork('Network', this.nick, {
                 server: netAddress,
                 port: options.port,
                 tls: options.tls,
-                password: this.password,
+                password: password,
                 encoding: _.trim(options.encoding),
                 direct: !!options.direct,
                 path: options.direct_path || '',
+                gecos: options.gecos,
             });
 
             // If we retreived an existing network, update the nick+password with what
             // the user has just put in place
             net.connection.nick = this.nick;
-            net.password = this.password;
+            net.password = password;
             net.gecos = this.buildGecos();
+
+            if (_.trim(options.encoding || '')) {
+                net.connection.encoding = _.trim(options.encoding);
+            }
 
             if (!this.network && options.recaptchaSiteId) {
                 net.captchaResponse = this.captchaResponse();
@@ -286,6 +347,11 @@ export default {
                     newBuffer.key = bufferObj.key;
                 }
             });
+
+            // switch to server buffer if no channels are joined
+            if (!hasSwitchedActiveBuffer) {
+                state.setActiveBuffer(net.id, net.serverBuffer().name);
+            }
 
             net.ircClient.connect();
             let onRegistered = () => {
@@ -319,28 +385,26 @@ export default {
 
 <style>
 
-.kiwi-welcome-simple h2 {
-    font-size: 1.7em;
-    text-align: center;
+/* Containers */
+form.kiwi-welcome-simple-form {
+    width: 70%;
+    padding: 0 20px;
+}
+
+@media (max-width: 1025px) {
+    form.kiwi-welcome-simple-form {
+        width: 100%;
+    }
+}
+
+form.kiwi-welcome-simple-form h2 {
+    margin: 0 0 40px 0;
     padding: 0;
-    margin: 0.5em 0 1em 0;
-}
-
-.kiwi-welcome-simple-form {
-    width: 90%;
-    max-width: 250px;
-    border-radius: 0.5em;
-    padding: 1em;
-}
-
-.kiwi-welcome-simple--recaptcha .kiwi-welcome-simple-form {
-    width: 333px;
-    max-width: 333px;
-    box-sizing: border-box;
-}
-
-.g-recaptcha {
-    margin-bottom: 10px;
+    cursor: default;
+    font-weight: 600;
+    font-size: 2.2em;
+    text-align: center;
+    line-height: 1.2em;
 }
 
 .kiwi-welcome-simple-error {
@@ -354,66 +418,56 @@ export default {
     font-style: italic;
 }
 
-.kiwi-welcome-simple-age input[type=number] {
-    -moz-appearance: textfield;
+.kiwi-welcome-simple-input-container {
+    width: 100%;
+    height: auto;
+    position: relative;
+    margin: 0 0 20px 0;
 }
 
-.kiwi-welcome-simple-age input[type=number]::-webkit-inner-spin-button,
-.kiwi-welcome-simple-age input[type=number]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+.kiwi-welcome-simple-input-container:last-of-type {
+    margin: 20px 0 40px 0;
+}
+
+.kiwi-welcome-simple-asl-container {
+    width: 100%;
+    height: auto;
+    position: relative;
+    margin: 0 0 0px 0;
+    display:flex;
 }
 
 .kiwi-welcome-simple-sex {
-    font-weight: 600;
-    color: #b3b3bc;
-    display: inline-block;
-    margin-bottom: 0.8em;
+    flex:1;
+    margin-left:5px;
 }
 
-.kiwi-welcome-simple-sex select {
-    border: 0;
+.u-form .kiwi-welcome-simple-sex select {
+   border-radius: 5px;
+   color: var(--brand-input-fg);
+   background-color: var(--brand-default-bg);
+   font-size: inherit;
+   overflow: hidden;
+   padding: 14px 14px;
+   text-overflow: ellipsis;
+   white-space: nowrap;
+   box-sizing: border-box;
+   width:100%;
 }
 
-.kiwi-welcome-simple-section-connection label {
-    text-align: left;
-    display: inline-block;
-    margin-bottom: 0.8em;
-    padding: 0 0.5em;
+.u-form .kiwi-welcome-simple-sex select:focus {
+    outline: none;
+    border-color: var(--brand-primary);
 }
 
-.kiwi-welcome-simple-section-connection .u-input-text input[type="text"] {
-    margin-top: 5px;
-    padding: 0.3em 1em;
+.u-form .kiwi-welcome-simple-sex select option {
+    background-color: var(--brand-default-bg);
+}
+
+.kiwi-welcome-simple-form .u-submit {
     width: 100%;
-    font-size: 1.1em;
-    box-sizing: border-box;
-}
-
-.kiwi-welcome-simple .u-input-text {
-    font-weight: 600;
-    opacity: 0.6;
-    font-size: 1.2em;
-    margin-bottom: 0.8em;
-}
-
-.kiwi-welcome-simple-form input {
-    padding: 0.5em;
-}
-
-.kiwi-welcome-simple-have-password input {
-    font-size: 0.8em;
-    margin: 0.8em 0;
-    margin-top: 2px;
-}
-
-.kiwi-welcome-simple .kiwi-g-recaptcha {
-    margin-bottom: 10px;
-}
-
-.kiwi-welcome-simple .u-form label span {
-    font-size: 1.1em;
-    margin-left: 5px;
+    height: 50px;
+    font-size: 1.3em;
 }
 
 .kiwi-welcome-simple-start {
@@ -426,82 +480,9 @@ export default {
     opacity: 0.65;
 }
 
-.kiwi-welcome-simple-channel {
-    margin-bottom: 0.8em;
-}
-
-.kiwi-welcome-simple-form .u-submit {
-    width: 100%;
-    line-height: 50px;
-    padding: 0;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 400;
-    text-shadow: none;
-    margin: 0;
-    transition: all 0.2s;
-    border: none;
-}
-
-.kiwi-welcome-simple .help {
-    position: absolute;
-    bottom: 0.2em;
-    font-size: 0.8em;
-    width: 50%;
-    text-align: center;
-}
-
-.kiwi-welcome-simple .help a {
-    text-decoration: underline;
-}
-
-/* Styling the preloader */
+/* Make the preloader icon larger */
 .kiwi-welcome-simple .fa-spinner {
-    position: absolute;
-    top: 50%;
-    z-index: 999;
-    font-size: 100px;
-    margin-top: -0.5em;
-    left: 50%;
-    margin-left: -40px;
-    color: black;
-}
-
-/** Smaller screen... **/
-@media screen and (max-width: 850px) {
-    .kiwi-welcome-simple-form {
-        left: auto;
-        margin: 20px auto 20px auto;
-        z-index: 100;
-        position: relative;
-        top: auto;
-        align-self: flex-start;
-    }
-
-    .kiwi-welcome-simple p.help {
-        position: absolute;
-        bottom: 20px;
-        width: 100%;
-        color: #fff;
-        z-index: 100;
-    }
-
-    .kiwi-welcome-simple p.help a {
-        color: #fff;
-    }
-
-    .fa-spinner {
-        position: absolute;
-        left: 48%;
-        top: 50%;
-        margin-top: -50px;
-    }
-}
-
-@media (max-width: 400px) {
-    .kiwi-welcome-simple-form {
-        width: 90%;
-    }
+    font-size: 6em;
 }
 
 </style>
