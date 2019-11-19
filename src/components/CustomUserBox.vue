@@ -303,7 +303,7 @@ export default {
             this.network.ircClient.raw('KICK', this.buffer.name, this.user.nick, reason);
         },
         createBanMask: function banMask() {
-            let reason = this.$state.setting('buffers.default_ban_mask');
+            let mask = this.$state.setting('buffers.default_ban_mask');
             mask = mask.replace('%n', this.user.nick);
             mask = mask.replace('%i', this.user.username);
             mask = mask.replace('%h', this.user.host);
@@ -324,7 +324,7 @@ export default {
             }
 
             let banMask = this.createBanMask();
-            let reason = state.setting('buffers.default_ban_mask');
+            let reason = this.$state.setting('buffers.default_kick_reason');
             this.network.ircClient.raw('MODE', this.buffer.name, '+b', banMask);
             this.network.ircClient.raw('KICK', this.buffer.name, this.user.nick, reason);
         },
