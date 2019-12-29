@@ -147,6 +147,7 @@
 
 import * as utils from '../libs/utils.js';
 let TextFormatting = kiwi.require('helpers/TextFormatting');
+let IrcdDiffs = kiwi.require('helpers/IrcdDiffs');
 let AwayStatusIndicator = kiwi.require('components/AwayStatusIndicator');
 
 export default {
@@ -177,6 +178,17 @@ export default {
                 h: 'Half-Operator',
                 v: 'Voice',
             };
+            
+            if (!IrcdDiffs.isAChannelModeAdmin(this.network)) {
+                delete knownPrefix.a;
+            }
+            if (!IrcdDiffs.isQChannelModeOwner(this.network)) {
+                delete knownPrefix.q;
+            }
+            if (!IrcdDiffs.supportsHalfOp(this.network)) {
+                delete knownPrefix.h;
+            }
+            
             prefixes.forEach((prefix) => {
                 let mode = prefix.mode;
                 if (knownPrefix[mode]) {
@@ -252,7 +264,7 @@ export default {
 	                channels[i] = TextFormatting.linkifyChannels(channels[i]);
 	            }
 	            return channels.join(' ');
-    },
+        },
         isSelf() {
             return this.user === this.network.currentUser();
         },
