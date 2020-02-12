@@ -7,15 +7,29 @@ It then display's this data in a customised userbox based off UserBox.vue
 * node (https://nodejs.org/)
 * yarn (https://yarnpkg.com/)
 
-#### Building the source
+#### Building and installing
 
-```console
-$ yarn
-$ yarn build
-```
+1. Build the plugin
 
-The plugin will then be built into dist/plugin-custom-startup-asl.js
+   ```console
+   $ yarn
+   $ yarn build
+   ```
 
+   The plugin will then be created at `dist/plugin-custom-startup-asl.js`
+
+2. Copy the plugin to your Kiwi webserver
+
+   The plugin file must be loadable from a webserver. Creating a `plugins/` folder with your KiwiIRC files is a good place to put it.
+
+3. Add the plugin to KiwiIRC
+
+   In your kiwi `config.json` file, find the `plugins` section and add:
+   ```json
+   {"name": "asl", "url": "/plugins/plugin-custom-startup-asl.js"}
+   ```
+    
+   To enable the startup screen, tell KiwiIRC to use the startup screen from the plugin. Set `"startupScreen"` to `custom-welcome`.
 
 ## License
 
