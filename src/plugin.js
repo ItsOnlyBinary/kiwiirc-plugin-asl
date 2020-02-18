@@ -33,6 +33,10 @@ kiwi.plugin('custom-welcome', (kiwi) => {
     function getColour(gecos) {
         let asl = utils.getASL(gecos);
 
+        if (!asl) {
+            return 'default';
+        }
+
         switch (asl.s) {
         case 'Male':
             return '#00F';

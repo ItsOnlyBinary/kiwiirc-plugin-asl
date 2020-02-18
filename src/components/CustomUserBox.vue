@@ -12,17 +12,23 @@
         </div>
 
         <div class="kiwi-userbox-basicinfo">
-            <div v-if="asl.a">
-                <span class="kiwi-userbox-basicinfo-title">Age</span>
-                <span class="kiwi-userbox-basicinfo-data">{{asl.a}}</span>
+            <div v-if="asl">
+                <div v-if="asl.a">
+                    <span class="kiwi-userbox-basicinfo-title">Age</span>
+                    <span class="kiwi-userbox-basicinfo-data">{{asl.a}}</span>
+                </div>
+                <div v-if="asl.s">
+                    <span class="kiwi-userbox-basicinfo-title">Sex</span>
+                    <span class="kiwi-userbox-basicinfo-data">{{asl.s}}</span>
+                </div>
+                <div v-if="asl.l">
+                    <span class="kiwi-userbox-basicinfo-title">Location</span>
+                    <span class="kiwi-userbox-basicinfo-data">{{asl.l}}</span>
+                </div>
             </div>
-            <div v-if="asl.s">
-                <span class="kiwi-userbox-basicinfo-title">Sex</span>
-                <span class="kiwi-userbox-basicinfo-data">{{asl.s}}</span>
-            </div>
-            <div v-if="asl.l">
-                <span class="kiwi-userbox-basicinfo-title">Location</span>
-                <span class="kiwi-userbox-basicinfo-data">{{asl.l}}</span>
+            <div v-else>
+                <span class="kiwi-userbox-basicinfo-title">{{ $t('whois_realname') }}:</span>
+                <span class="kiwi-userbox-basicinfo-data">{{ user.realname }} </span>
             </div>
         </div>
 

@@ -8,5 +8,5 @@ export function getASL(str) {
 
 		return {a, s, l};
 	}
-	return {};
+	return null;
 }
