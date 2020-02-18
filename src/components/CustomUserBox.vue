@@ -27,8 +27,8 @@
                 </div>
             </div>
             <div v-else>
-                <span class="kiwi-userbox-basicinfo-title">{{ $t('whois_realname') }}:</span>
-                <span class="kiwi-userbox-basicinfo-data">{{ user.realname }} </span>
+	            <span class="kiwi-userbox-basicinfo-title">{{ $t('whois_realname') }}:</span>
+	            <span class="kiwi-userbox-basicinfo-data" v-html="formattedRealname"/>
             </div>
         </div>
 
@@ -147,11 +147,14 @@
 
 <script>
 
+'kiwi public';
 
 import * as ipRegex from 'ip-regex';
 import * as utils from '../libs/utils.js';
 let TextFormatting = kiwi.require('helpers/TextFormatting');
 let IrcdDiffs = kiwi.require('helpers/IrcdDiffs');
+let toHtml = kiwi.require('libs/renderers/Html');
+let parseMessage = kiwi.require('libs/MessageParser');
 let AwayStatusIndicator = kiwi.require('components/AwayStatusIndicator');
 
 export default {
@@ -209,6 +212,11 @@ export default {
             }
 
             return this.buffer.isUserAnOp(this.buffer.getNetwork().nick);
+        },
+        formattedRealname() {
+            let blocks = parseMessage(this.user.realname || '', { extras: false });
+            let content = toHtml(blocks, false);
+            return content;
         },
         isUserOnBuffer: function isUserOnBuffer() {
             if (!this.buffer) {
