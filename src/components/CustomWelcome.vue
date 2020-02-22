@@ -136,8 +136,8 @@ export default {
             connectWithoutChannel: false,
             showPlainText: false,
             captchaReady: false,
-            age: '',
-            sex: '',
+            age: null,
+            sex: null,
             location: '',
             realname: '',
         };

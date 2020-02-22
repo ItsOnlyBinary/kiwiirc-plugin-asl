@@ -97,13 +97,15 @@ export default {
                     return false;
                 }
 
+                let filter = this.filter.toLowerCase();
+
                 // Filter by nick
-                if (user.nick.indexOf(this.filter) !== -1) {
+                if (user.nick.toLowerCase().indexOf(filter) !== -1) {
                     return true;
                 }
 
                 // Filter by location
-                if (user.asl.l && user.asl.l.indexOf(this.filter) !== -1) {
+                if (user.asl.l && user.asl.l.toLowerCase().indexOf(filter) !== -1) {
                     return true;
                 }
 
@@ -165,6 +167,7 @@ export default {
 }
 
 .plugin-asl-userbrowser-filter {
+    margin-left: 7px;
     width: 100%;
 }
 
