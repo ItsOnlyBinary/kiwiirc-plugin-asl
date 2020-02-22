@@ -21,7 +21,7 @@ kiwi.plugin('custom-welcome', (kiwi) => {
 
     kiwi.on('irc.join', (event, net) => {
         if (event.gecos) {
-            updateUser(net, event.gecos, {
+            updateUser(net, {
                 nick: event.nick,
                 username: event.ident,
                 host: event.hostname,
@@ -34,24 +34,18 @@ kiwi.plugin('custom-welcome', (kiwi) => {
 
     kiwi.on('irc.wholist', (event, net) => {
         event.users.forEach((user) => {
-            updateUser(net, user.real_name, {
+            updateUser(net, {
                 nick: user.nick,
+                realname: user.real_name,
             });
         });
     });
 
-    function updateUser(net, gecos, _user) {
-        let user = _user;
-        let parsedGecos = utils.parseGecos(gecos);
-        let userObj = kiwi.state.getUser(net.id, user.nick);
-        if (!userObj) {
-            // if the user does not exist it cannot be updated
-            // meaning that asl props do not get added
-            kiwi.state.addUser(net, user);
-        }
-        user.asl = parsedGecos.asl;
-        user.aslRealname = parsedGecos.realname;
-        user.colour = utils.getColour(user.asl);
-        kiwi.state.addUser(net, user);
+    function updateUser(net, user) {
+        let userObj = kiwi.state.getUser(net.id, user.nick) || kiwi.state.addUser(net, user);
+        let parsedGecos = utils.parseGecos(user.realname);
+        userObj.asl = parsedGecos.asl;
+        userObj.aslRealname = parsedGecos.realname;
+        userObj.colour = utils.getColour(userObj.asl);
     }
 });
