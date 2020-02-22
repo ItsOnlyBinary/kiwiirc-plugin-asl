@@ -1,51 +1,57 @@
 import CustomWelcome from './components/CustomWelcome.vue';
 import CustomUserBox from './components/CustomUserBox.vue';
+import UserBrowser from './components/UserBrowser.vue';
+import UserBrowserButton from './components/UserBrowserButton.vue';
+import * as config from './config.js';
 import * as utils from './libs/utils.js';
 
 // eslint-disable-next-line no-undef
 kiwi.plugin('custom-welcome', (kiwi) => {
+    config.setDefaults();
     kiwi.addStartup('custom-welcome', CustomWelcome);
     kiwi.replaceModule('components/UserBox', CustomUserBox);
 
-    kiwi.on('irc.join', function(event, net) {
+    if (kiwi.state.getSetting('settings.plugin-asl.showUserBrowser')) {
+        let title = kiwi.state.getSetting('settings.plugin-asl.strings.browseUsers');
+        kiwi.addTab('channel', title, UserBrowser, {});
+        let browserButton = new kiwi.Vue(UserBrowserButton);
+        browserButton.$mount();
+        kiwi.addUi('header_channel', browserButton.$el);
+    }
+
+    kiwi.on('irc.join', (event, net) => {
         if (event.gecos) {
-            kiwi.state.addUser(net, {
+            updateUser(net, event.gecos, {
                 nick: event.nick,
                 username: event.ident,
                 host: event.hostname,
                 realname: event.gecos,
-                colour: getColour(event.gecos),
             });
         } else {
             net.ircClient.who(event.nick);
         }
     });
 
-    kiwi.on('irc.wholist', function(event, net) {
+    kiwi.on('irc.wholist', (event, net) => {
         event.users.forEach((user) => {
-            kiwi.state.addUser(net, {
+            updateUser(net, user.real_name, {
                 nick: user.nick,
-                colour: getColour(user.real_name),
             });
         });
     });
 
-    function getColour(gecos) {
-        let asl = utils.getASL(gecos);
-
-        if (!asl) {
-            return 'default';
+    function updateUser(net, gecos, _user) {
+        let user = _user;
+        let parsedGecos = utils.parseGecos(gecos);
+        let userObj = kiwi.state.getUser(net.id, user.nick);
+        if (!userObj) {
+            // if the user does not exist it cannot be updated
+            // meaning that asl props do not get added
+            kiwi.state.addUser(net, user);
         }
-
-        switch (asl.s) {
-        case 'Male':
-            return '#00F';
-        case 'Female':
-            return '#F0F';
-        case 'Other':
-            return '#0F0';
-        default:
-            return 'default';
-        }
+        user.asl = parsedGecos.asl;
+        user.aslRealname = parsedGecos.realname;
+        user.colour = utils.getColour(user.asl);
+        kiwi.state.addUser(net, user);
     }
 });

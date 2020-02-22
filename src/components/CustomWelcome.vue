@@ -42,26 +42,36 @@
                     />
                 </div>
                 <div class="kiwi-welcome-simple-asl-container">
-                <input-text
-                    label="Age"
-                    v-model="age"
-                    class="kiwi-welcome-simple-age"
-                    type="number"
-                />
-                <div class="kiwi-welcome-simple-sex">
-                    <label>Sex</label>
-                    <select v-model="sex">
-                        <option :value="null" selected disabled>Select</option>
-                        <option value="M">Male</option>
-                        <option value="F">Female</option>
-                        <option value="O">Other</option>
-                    </select>
+                    <div class="kiwi-welcome-simple-age-sex">
+                        <input-text
+                            v-model="age"
+                            :label="strings.age"
+                            class="kiwi-welcome-simple-age"
+                            type="number"
+                        />
+                        <div class="kiwi-welcome-simple-sex">
+                            <label>{{ strings.sex }}</label>
+                            <select v-model="sex">
+                                <option :value="null" selected disabled>Select</option>
+                                <option
+                                    v-for="(value, name) in sexes"
+                                    :key="'sexes-'+name"
+                                    :value="value.chars[0]"
+                                    :style="{ 'color': sexes[name].colour }"
+                                >{{ name }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <input-text
+                        v-model="location"
+                        :label="strings.location"
+                    />
+                    <input-text
+                        v-if="showRealname"
+                        v-model="realname"
+                        :label="strings.realname"
+                    />
                 </div>
-                </div>
-                <input-text
-                    label="Location"
-                    v-model="location"
-                />
 
                 <div v-if="showChannel" class="kiwi-welcome-simple-input-container">
                     <input-text
@@ -92,6 +102,11 @@
 
 <script>
 
+/* global _:true */
+/* global kiwi:true */
+
+import * as utils from '../libs/utils.js';
+
 let state = kiwi.state;
 let Misc = kiwi.require('helpers/Misc');
 let Logger = kiwi.require('libs/Logger');
@@ -121,12 +136,24 @@ export default {
             connectWithoutChannel: false,
             showPlainText: false,
             captchaReady: false,
-            age: null,
-            sex: null,
-            location: null,
+            age: '',
+            sex: '',
+            location: '',
+            realname: '',
         };
     },
     computed: {
+        sexes() {
+            return kiwi.state.getSetting('settings.plugin-asl.sexes');
+        },
+        strings() {
+            return kiwi.state.getSetting('settings.plugin-asl.strings');
+        },
+        showRealname() {
+            let showRealname = this.$state.getSetting('settings.plugin-asl.showRealname');
+            let gecosType = this.$state.getSetting('settings.plugin-asl.gecosType');
+            return showRealname && gecosType === 1;
+        },
         startupOptions() {
             return this.$state.settings.startupOptions;
         },
@@ -219,6 +246,37 @@ export default {
             this.nick = options.nick;
         }
 
+        let parsedGecos = null;
+        if (previousNet && previousNet.gecos) {
+            parsedGecos = utils.parseGecos(previousNet.gecos);
+            this.realname = parsedGecos.realname;
+        }
+
+        let queryKeys = kiwi.state.getSetting('settings.plugin-asl.queryKeys');
+        if (Misc.queryStringVal(queryKeys.age)) {
+            this.age = Misc.queryStringVal(queryKeys.age);
+        } else if (parsedGecos && parsedGecos.asl) {
+            this.age = parsedGecos.asl.a;
+        }
+
+        if (Misc.queryStringVal(queryKeys.sex)) {
+            this.sex = Misc.queryStringVal(queryKeys.sex);
+        } else if (parsedGecos && parsedGecos.asl) {
+            this.sex = utils.getSexChar(parsedGecos.asl.s);
+        }
+
+        if (Misc.queryStringVal(queryKeys.location)) {
+            this.location = Misc.queryStringVal(queryKeys.location);
+        } else if (parsedGecos && parsedGecos.asl) {
+            this.location = parsedGecos.asl.l;
+        }
+
+        if (Misc.queryStringVal(queryKeys.realname)) {
+            this.realname = Misc.queryStringVal(queryKeys.realname);
+        } else if (parsedGecos && parsedGecos.realname) {
+            this.realname = parsedGecos.realname;
+        }
+
         this.nick = this.processNickRandomNumber(this.nick || '');
         this.password = options.password || '';
         this.channel = decodeURIComponent(window.location.hash) || options.channel || '';
@@ -247,11 +305,37 @@ export default {
             bouncer.enable(options.server, options.port, options.tls, options.direct, options.path);
         }
 
-        if (options.autoConnect && this.nick && (this.channel || this.connectWithoutChannel)) {
+        if (
+            options.autoConnect &&
+            this.nick &&
+            (this.channel || this.connectWithoutChannel) &&
+            this.age &&
+            this.sex
+        ) {
             this.startUp();
         }
     },
     methods: {
+        buildGecos() {
+            if (!this.age || !this.sex) {
+                return '';
+            }
+
+            let gecosId = kiwi.state.getSetting('settings.plugin-asl.gecosType');
+            let gecosType = kiwi.state.pluginASL.gecosTypes[gecosId - 1];
+            let gecos = gecosType.build;
+            let asl = [this.age, this.sex];
+            if (this.location) {
+                asl.push(this.location);
+            }
+
+            return gecos.replace('%asl', asl.join(gecosType.separator))
+                .replace('%a', this.age)
+                .replace('%s', this.sex)
+                .replace('%l', this.location || '')
+                .replace('%r', this.realname || '')
+                .trim();
+        },
         onAltClose(event) {
             if (event.channel) {
                 this.channel = event.channel;
@@ -367,12 +451,6 @@ export default {
         handleCaptcha(isReady) {
             this.captchaReady = isReady;
         },
-        buildGecos() {
-            return '[' +
-                (this.age || 'U') + '/' +
-                (this.sex || 'U') + '/' +
-                (this.location || 'U') + ']';
-        }
     },
 };
 </script>
@@ -423,30 +501,35 @@ form.kiwi-welcome-simple-form h2 {
     margin: 20px 0 40px 0;
 }
 
-.kiwi-welcome-simple-asl-container {
-    width: 100%;
+.kiwi-welcome-simple-age-sex {
     height: auto;
     position: relative;
-    margin: 0 0 0px 0;
-    display:flex;
+    margin: 0;
+    display: flex;
+}
+
+.kiwi-welcome-simple-age {
+    display: inline-block;
+    width: 50%;
 }
 
 .kiwi-welcome-simple-sex {
-    flex:1;
-    margin-left:5px;
+    display: inline-block;
+    margin-left: 5px;
+    width: 50%;
 }
 
 .u-form .kiwi-welcome-simple-sex select {
-   border-radius: 5px;
-   color: var(--brand-input-fg);
-   background-color: var(--brand-default-bg);
-   font-size: inherit;
-   overflow: hidden;
-   padding: 14px 14px;
-   text-overflow: ellipsis;
-   white-space: nowrap;
-   box-sizing: border-box;
-   width:100%;
+    border-radius: 5px;
+    color: var(--brand-input-fg);
+    background-color: var(--brand-default-bg);
+    font-size: inherit;
+    overflow: hidden;
+    padding: 14px 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .u-form .kiwi-welcome-simple-sex select:focus {

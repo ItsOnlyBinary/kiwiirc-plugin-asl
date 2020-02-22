@@ -30,6 +30,49 @@ It then display's this data in a customised userbox based off UserBox.vue
    ```
     
    To enable the startup screen, tell KiwiIRC to use the startup screen from the plugin. Set `"startupScreen"` to `custom-welcome`.
+   
+#### Configuration
+
+```
+"plugin-asl" : {
+    "gecosType": 1,
+    "showRealname": false,
+    "showUserBrowser": true,
+    "userBrowserIcon": "fa-heart",
+    "singleLineUserbox": false,
+    "singleLineString": {
+        "age": "%a years",
+        "sex": "%s",
+        "location": "%l",
+        "separator": " ",
+    },
+    "ageRanges": [
+        { "name": "All", "value": "all" },
+        { "name": "< 25", "value": "<25" },
+        { "name": "25 - 45", "value": "25-46" },
+        { "name": "> 45", "value": ">45" },
+    ],
+    "sexes": {
+        "Male": { "chars": "M", "colour": "#00F" },
+        "Female": { "chars": "F", "colour": "#F0F" },
+        "Other": { "chars": "O", "colour": "#0F0" },
+    },
+    "queryKeys": {
+        "age": "age",
+        "sex": "sex",
+        "location": "location",
+        "realname": "realname",
+    },
+    "strings": {
+        "age": "Age",
+        "sex": "Sex",
+        "location": "Location",
+        "realname": "Real Name",
+        "info": "Info",
+        "browseUsers": "Browse Users",
+    }
+},
+```
 
 ## License
 
