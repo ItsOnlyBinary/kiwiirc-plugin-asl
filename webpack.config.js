@@ -1,12 +1,12 @@
 const path = require('path');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
-const isProd = process.argv.indexOf('-p') !== 1;
+const isProd = process.argv.indexOf('--debug') === -1;
 
 module.exports = {
     mode: 'production',
     entry: './src/plugin.js',
     output: {
-        filename: 'plugin-custom-welcome-asl.js',
+        filename: 'plugin-asl.js',
     },
     module: {
         rules: [
@@ -36,7 +36,7 @@ module.exports = {
     ],
     devtool: isProd ? '' : 'source-map',
     devServer: {
-        filename: 'plugin-custom-welcome-asl.js',
+        filename: 'plugin-asl.js',
         contentBase: path.join(__dirname, "dist"),
         compress: true,
         port: 9000

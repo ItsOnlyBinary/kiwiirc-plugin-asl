@@ -1,7 +1,10 @@
 # Custom Startup for [Kiwi IRC] (https://kiwiirc.com)
 
-This plugin creates a customised startup screen for age/sex/location based off Welcome.vue  
+This plugin creates a customised startup screen for age/sex/location based off Welcome.vue
+
 It then display's this data in a customised userbox based off UserBox.vue
+
+It also provides a nicklist style user list with search/filter for users to find other chatters
 
 #### Dependencies
 * node (https://nodejs.org/)
@@ -16,7 +19,7 @@ It then display's this data in a customised userbox based off UserBox.vue
    $ yarn build
    ```
 
-   The plugin will then be created at `dist/plugin-custom-startup-asl.js`
+   The plugin will then be created at `dist/plugin-asl.js`
 
 2. Copy the plugin to your Kiwi webserver
 
@@ -26,11 +29,11 @@ It then display's this data in a customised userbox based off UserBox.vue
 
    In your kiwi `config.json` file, find the `plugins` section and add:
    ```json
-   {"name": "asl", "url": "/plugins/plugin-custom-startup-asl.js"}
+   {"name": "asl", "url": "/plugins/plugin-asl.js"}
    ```
-    
-   To enable the startup screen, tell KiwiIRC to use the startup screen from the plugin. Set `"startupScreen"` to `custom-welcome`.
-   
+
+   To enable the startup screen, tell KiwiIRC to use the startup screen from the plugin. Set `"startupScreen"` to `plugin-asl`.
+
 #### Configuration
 
 ```

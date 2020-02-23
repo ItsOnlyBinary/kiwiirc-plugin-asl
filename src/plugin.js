@@ -6,9 +6,9 @@ import * as config from './config.js';
 import * as utils from './libs/utils.js';
 
 // eslint-disable-next-line no-undef
-kiwi.plugin('custom-welcome', (kiwi) => {
+kiwi.plugin('asl', (kiwi) => {
     config.setDefaults();
-    kiwi.addStartup('custom-welcome', CustomWelcome);
+    kiwi.addStartup('plugin-asl', CustomWelcome);
     kiwi.replaceModule('components/UserBox', CustomUserBox);
 
     if (kiwi.state.getSetting('settings.plugin-asl.showUserBrowser')) {
