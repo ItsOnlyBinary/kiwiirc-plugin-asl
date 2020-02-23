@@ -34,9 +34,9 @@
         <div class="plugin-asl-userbrowser-users">
             <table class="plugin-asl-userbrowser-users-table">
                 <tr>
-                    <th style="text-align: left;">Nick</th>
-                    <th>Age</th>
-                    <th style="text-align: left;">Location</th>
+                    <th style="width: 35%; text-align: left;">{{ $t('nick') }}</th>
+                    <th style="width: 15%;">{{ strings.age }}</th>
+                    <th style="width: 50%; text-align: left;">{{ strings.location }}</th>
                 </tr>
                 <tr v-for="user in filteredUsers" :key="'users-'+user.nick">
                     <td
@@ -70,9 +70,14 @@ export default {
     },
     computed: {
         filteredUsers() {
-            let users = kiwi.state.getActiveNetwork().users;
-            users = _.filter(users, (user) => {
+            let filter = this.filter.toLowerCase();
+            return _.filter(this.buffer.users, (user) => {
                 if (!user.asl) {
+                    return false;
+                }
+
+                // dont show self in the list
+                if (user.nick === this.network.currentUser().nick) {
                     return false;
                 }
 
@@ -97,8 +102,6 @@ export default {
                     return false;
                 }
 
-                let filter = this.filter.toLowerCase();
-
                 // Filter by nick
                 if (user.nick.toLowerCase().indexOf(filter) !== -1) {
                     return true;
@@ -111,7 +114,9 @@ export default {
 
                 return false;
             });
-            return users;
+        },
+        strings() {
+            return kiwi.state.getSetting('settings.plugin-asl.strings');
         },
     },
     created() {
