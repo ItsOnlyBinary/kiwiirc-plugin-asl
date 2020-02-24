@@ -1,0 +1,11 @@
+{
+    "age": "Âge",
+    "sex": "Sexe",
+    "location": "Ville",
+    "info": "Info",
+    "all": "Tous",
+    "male": "Homme",
+    "female": "Femme",
+    "other": "Autre",
+    "select": "Choisir"
+}

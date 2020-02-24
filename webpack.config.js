@@ -1,5 +1,6 @@
 const path = require('path');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const isProd = process.argv.indexOf('--debug') === -1;
 
 module.exports = {
@@ -18,7 +19,8 @@ module.exports = {
                 test: /\.js$/,
                 use: [{loader: 'exports-loader'}, {loader: 'babel-loader'}],
                 include: [
-                    path.join(__dirname, 'src')
+                    path.join(__dirname, 'src'),
+                    path.join(__dirname, './node_modules/ip-regex/'),
                 ]
             },
             {
@@ -32,7 +34,14 @@ module.exports = {
         ]
     },
     plugins: [
-        new VueLoaderPlugin()
+        new VueLoaderPlugin(),
+        new CopyWebpackPlugin([
+            {
+                from: path.resolve(__dirname, './res/locales'),
+                to: 'plugin-asl/locales/',
+                ignore: ['.*']
+            }
+        ])
     ],
     devtool: isProd ? '' : 'source-map',
     devServer: {

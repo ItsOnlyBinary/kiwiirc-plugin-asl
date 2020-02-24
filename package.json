@@ -5,7 +5,7 @@
     "license": "Apache-2.0",
     "private": true,
     "scripts": {
-        "build": "npm run lint && webpack",
+        "build": "webpack",
         "watch": "webpack --watch",
         "dev": "webpack-dev-server",
         "lint:eslint": "eslint --ext .js,.vue ./",
@@ -19,6 +19,7 @@
         "babel-plugin-transform-runtime": "^6.23.0",
         "babel-preset-env": "^1.7.0",
         "babel-preset-stage-2": "^6.24.1",
+        "copy-webpack-plugin": "^4.3.1",
         "css-loader": "^0.28.8",
         "eslint": "^4.15.0",
         "eslint-config-airbnb-base": "^12.1.0",

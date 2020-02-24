@@ -1,6 +1,9 @@
 /* global kiwi:true */
 
 export function setDefaults() {
+    // Where the webbrowser can find the locale json files
+    setSettingDefault('plugin-asl.localesPath', 'static/plugins/plugin-asl/locales/');
+
     // Type 1 "[a/s/l?] realname?"
     // Type 2 "a s l?"
     setSettingDefault('plugin-asl.gecosType', 1);
@@ -31,7 +34,7 @@ export function setDefaults() {
     //   >50    - greater than integer
     //   25-50  - an inclusive range
     setSettingDefault('plugin-asl.ageRanges', [
-        { name: 'All', value: 'all' },
+        { name: '_all', value: 'all' },
         { name: '< 25', value: '<25' },
         { name: '25 - 45', value: '25-46' },
         { name: '> 45', value: '>45' },
@@ -39,11 +42,11 @@ export function setDefaults() {
 
     // Sex selection and parsing
     // chars is for matching against gecos (can contain multiple)
-    // the first char will be used in gecos
+    // the first char will be used in gecos creation
     setSettingDefault('plugin-asl.sexes', {
-        Male: { chars: 'M', colour: '#00F' },
-        Female: { chars: 'F', colour: '#F0F' },
-        Other: { chars: 'O', colour: '#0F0' },
+        _male: { chars: 'M', colour: '#00F' },
+        _female: { chars: 'F', colour: '#F0F' },
+        _other: { chars: 'O', colour: '#0F0' },
     });
 
     // Keys used to get asl from query string
@@ -52,16 +55,6 @@ export function setDefaults() {
         sex: 'sex',
         location: 'location',
         realname: 'realname',
-    });
-
-    // Strings used through out the plugin
-    setSettingDefault('plugin-asl.strings', {
-        age: 'Age',
-        sex: 'Sex',
-        location: 'Location',
-        realname: 'Real Name',
-        info: 'Info',
-        browseUsers: 'Browse Users',
     });
 
     // Set internal defaults

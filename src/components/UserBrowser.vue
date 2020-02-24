@@ -13,7 +13,9 @@
                     type="checkbox"
                     @change="toggleSex($event, name)"
                 >
-                <label :for="'asl-'+name">{{ name }}</label>
+                <label :for="'asl-'+name">
+                    {{ name[0] === '_' ? $t('plugin-asl:' + name.substr(1)) : name }}
+                </label>
             </div>
             <select
                 v-model="age"
@@ -24,7 +26,13 @@
                     v-for="ageRange in ageRanges"
                     :key="'agerange-'+ageRange.value"
                     :value="ageRange.value"
-                >{{ ageRange.name }}</option>
+                >
+                    {{
+                        ageRange.name[0] === '_' ?
+                            $t('plugin-asl:' + ageRange.name.substr(1)) :
+                            ageRange.name
+                    }}
+                </option>
             </select>
         </div>
         <div class="plugin-asl-userbrowser-filter u-form">
@@ -35,8 +43,8 @@
             <table class="plugin-asl-userbrowser-users-table">
                 <tr>
                     <th style="width: 35%; text-align: left;">{{ $t('nick') }}</th>
-                    <th style="width: 15%;">{{ strings.age }}</th>
-                    <th style="width: 50%; text-align: left;">{{ strings.location }}</th>
+                    <th style="width: 15%;">{{ $t('plugin-asl:age') }}</th>
+                    <th style="width: 50%; text-align: left;">{{ $t('plugin-asl:location') }}</th>
                 </tr>
                 <tr v-for="user in filteredUsers" :key="'users-'+user.nick">
                     <td
@@ -114,9 +122,6 @@ export default {
 
                 return false;
             });
-        },
-        strings() {
-            return kiwi.state.getSetting('settings.plugin-asl.strings');
         },
     },
     created() {

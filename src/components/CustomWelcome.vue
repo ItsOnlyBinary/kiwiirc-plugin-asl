@@ -45,31 +45,37 @@
                     <div class="kiwi-welcome-simple-age-sex">
                         <input-text
                             v-model="age"
-                            :label="strings.age"
+                            :label="$t('plugin-asl:age')"
                             class="kiwi-welcome-simple-age"
                             type="number"
                         />
                         <div class="kiwi-welcome-simple-sex">
-                            <label>{{ strings.sex }}</label>
+                            <label>{{ $t('plugin-asl:sex') }}</label>
                             <select v-model="sex">
-                                <option :value="null" selected disabled>Select</option>
+                                <option :value="null" selected disabled>
+                                    {{ $t('plugin-asl:select') }}
+                                </option>
                                 <option
                                     v-for="(value, name) in sexes"
                                     :key="'sexes-'+name"
                                     :value="value.chars[0]"
                                     :style="{ 'color': sexes[name].colour }"
-                                >{{ name }}</option>
+                                >{{
+                                    name[0] === '_' ?
+                                        $t('plugin-asl:' + name.substr(1)) :
+                                        name
+                                }}</option>
                             </select>
                         </div>
                     </div>
                     <input-text
                         v-model="location"
-                        :label="strings.location"
+                        :label="$t('plugin-asl:location')"
                     />
                     <input-text
                         v-if="showRealname"
                         v-model="realname"
-                        :label="strings.realname"
+                        :label="$t('whois_realname')"
                     />
                 </div>
 
@@ -145,9 +151,6 @@ export default {
     computed: {
         sexes() {
             return kiwi.state.getSetting('settings.plugin-asl.sexes');
-        },
-        strings() {
-            return kiwi.state.getSetting('settings.plugin-asl.strings');
         },
         showRealname() {
             let showRealname = this.$state.getSetting('settings.plugin-asl.showRealname');
