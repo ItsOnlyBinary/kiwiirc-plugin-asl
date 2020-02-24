@@ -36,6 +36,8 @@ It also provides a nicklist style user list with search/filter for users to find
 
 #### Configuration
 
+note: the variables starting with _ are treated as translation keys
+
 ```
 "plugin-asl" : {
     "gecosType": 1,
@@ -50,15 +52,15 @@ It also provides a nicklist style user list with search/filter for users to find
         "separator": " ",
     },
     "ageRanges": [
-        { "name": "All", "value": "all" },
+        { "name": "_all", "value": "all" },
         { "name": "< 25", "value": "<25" },
         { "name": "25 - 45", "value": "25-46" },
         { "name": "> 45", "value": ">45" },
     ],
     "sexes": {
-        "Male": { "chars": "M", "colour": "#00F" },
-        "Female": { "chars": "F", "colour": "#F0F" },
-        "Other": { "chars": "O", "colour": "#0F0" },
+        "_male": { "chars": "M", "colour": "#00F" },
+        "_female": { "chars": "F", "colour": "#F0F" },
+        "_other": { "chars": "O", "colour": "#0F0" },
     },
     "queryKeys": {
         "age": "age",
@@ -66,14 +68,6 @@ It also provides a nicklist style user list with search/filter for users to find
         "location": "location",
         "realname": "realname",
     },
-    "strings": {
-        "age": "Age",
-        "sex": "Sex",
-        "location": "Location",
-        "realname": "Real Name",
-        "info": "Info",
-        "browseUsers": "Browse Users",
-    }
 },
 ```
 
