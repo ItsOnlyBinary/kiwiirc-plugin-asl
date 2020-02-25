@@ -42,11 +42,16 @@ module.exports = {
         'operator-linebreak': 0,
         'prefer-const': 0,
         'prefer-destructuring': 0,
+        'prefer-object-spread': 0,
         'prefer-template': 0,
         'semi': ['error', 'always'],
         'space-before-function-paren': ['error', 'never'],
+        'vue/html-closing-bracket-spacing': 0,
         'vue/html-indent': ['error', 4],
         'vue/max-attributes-per-line': 0,
+        'vue/singleline-html-element-content-newline': 0,
+        'vue/multiline-html-element-content-newline': 0,
+        'vue/no-v-html': 0,
         'vue/require-prop-types': 0,
     }
 }

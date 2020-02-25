@@ -2,10 +2,10 @@
     <startup-layout ref="layout"
                     class="kiwi-welcome-simple"
     >
-        <template v-slot:connection v-if="startupOptions.altComponent">
+        <template v-if="startupOptions.altComponent" v-slot:connection>
             <component :is="startupOptions.altComponent" @close="onAltClose" />
         </template>
-        <template v-slot:connection v-else-if="!network || network.state === 'disconnected'">
+        <template v-else-if="!network || network.state === 'disconnected'" v-slot:connection>
             <form class="u-form u-form--big kiwi-welcome-simple-form" @submit.prevent="formSubmit">
                 <h2 v-html="greetingText"/>
                 <div v-if="errorMessage" class="kiwi-welcome-simple-error">{{ errorMessage }}</div>
@@ -34,8 +34,8 @@
                      class="kiwi-welcome-simple-input-container"
                 >
                     <input-text
-                        v-focus
                         v-model="password"
+                        v-focus
                         :show-plain-text="true"
                         :label="$t('password')"
                         type="password"
@@ -100,7 +100,7 @@
                 <div v-html="footerText"/>
             </form>
         </template>
-        <template v-slot:connection v-else>
+        <template v-else v-slot:connection>
             <i class="fa fa-spin fa-spinner" aria-hidden="true"/>
         </template>
     </startup-layout>
