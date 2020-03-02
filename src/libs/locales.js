@@ -13,8 +13,7 @@ export default class Locales {
         this.nameSpace = nameSpace;
         this.testKey = testKey;
 
-        kiwi.i18n.on('languageChanged', (_lang) => {
-            let lang = _lang.toLowerCase();
+        kiwi.i18n.on('languageChanged', (lang) => {
             if (kiwi.i18n.getResource(lang, this.nameSpace, this.testKey)) {
                 return;
             }
@@ -30,7 +29,8 @@ export default class Locales {
         this.loadLocale(kiwi.i18n.language);
     }
 
-    loadLocale(lang) {
+    loadLocale(_lang) {
+        let lang = _lang.toLowerCase();
         let xhttp = new XMLHttpRequest();
         xhttp.onload = (event) => {
             if (xhttp.status !== 200) {
