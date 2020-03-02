@@ -1,13 +1,14 @@
 <template>
     <div class="kiwi-userbox">
         <span v-if="isSelf" class="kiwi-userbox-selfprofile">
-            This is you!
+            {{ $t('user_you') }}
         </span>
         <div class="kiwi-userbox-header">
             <h3>
                 <away-status-indicator :network="network" :user="user"/> {{ user.nick }}
-                <span v-if="userMode" class="kiwi-userbox-modestring">+ {{ userMode }}</span>
-	        </h3>
+                <span v-if="userMode" class="kiwi-userbox-modestring">+{{ userMode }}</span>
+            </h3>
+            <div class="kiwi-userbox-usermask">{{ user.username }}@{{ user.host }}</div>
         </div>
 
         <div class="kiwi-userbox-basicinfo">
@@ -36,7 +37,6 @@
                 <i class="fa fa-question-circle" aria-hidden="true"/>
                 {{ $t('more_information') }}
             </a>
-
         </p>
 
         <form v-if="!isSelf" class="u-form kiwi-userbox-ignoreuser">
@@ -88,7 +88,7 @@
                     class="kiwi-userbox-whois-line"
                     @click="onChannelsClick($event)"
                     v-html="$t('user_channels', {channels: userChannels})"
-	            />
+	        />
             </template>
         </div>
 
@@ -146,8 +146,11 @@
 'kiwi public';
 
 import * as utils from '../libs/utils.js';
+let ipRegex = kiwi.require('ip-regex');
 let TextFormatting = kiwi.require('helpers/TextFormatting');
 let IrcdDiffs = kiwi.require('helpers/IrcdDiffs');
+let toHtml = kiwi.require('libs/renderers/Html');
+let parseMessage = kiwi.require('libs/MessageParser');
 let AwayStatusIndicator = kiwi.require('components/AwayStatusIndicator');
 
 export default {
@@ -170,7 +173,6 @@ export default {
         availableChannelModes: function availableChannelModes() {
             let availableModes = [];
             let prefixes = this.network.ircClient.network.options.PREFIX;
-            // TODO: Double check these modes mean the correct things
             let knownPrefix = {
                 q: 'Owner',
                 a: 'Admin',
@@ -178,7 +180,7 @@ export default {
                 h: 'Half-Operator',
                 v: 'Voice',
             };
-            
+
             if (!IrcdDiffs.isAChannelModeAdmin(this.network)) {
                 delete knownPrefix.a;
             }
@@ -188,7 +190,7 @@ export default {
             if (!IrcdDiffs.supportsHalfOp(this.network)) {
                 delete knownPrefix.h;
             }
-            
+
             prefixes.forEach((prefix) => {
                 let mode = prefix.mode;
                 if (knownPrefix[mode]) {
@@ -207,6 +209,11 @@ export default {
             }
 
             return this.buffer.isUserAnOp(this.buffer.getNetwork().nick);
+        },
+        formattedRealname() {
+            let blocks = parseMessage(this.user.realname || '', { extras: false });
+            let content = toHtml(blocks, false);
+            return content;
         },
         isUserOnBuffer: function isUserOnBuffer() {
             if (!this.buffer) {
@@ -259,11 +266,11 @@ export default {
             },
         },
         userChannels() {
-	            let channels = this.user.channels.trim().split(' ');
-	            for (let i = 0; i < channels.length; i++) {
-	                channels[i] = TextFormatting.linkifyChannels(channels[i]);
-	            }
-	            return channels.join(' ');
+	    let channels = this.user.channels.trim().split(' ');
+	    for (let i = 0; i < channels.length; i++) {
+		channels[i] = TextFormatting.linkifyChannels(channels[i]);
+	    }
+	    return channels.join(' ');
         },
         isSelf() {
             return this.user === this.network.currentUser();
@@ -314,7 +321,41 @@ export default {
             let reason = this.$state.setting('buffers.default_kick_reason');
             this.network.ircClient.raw('KICK', this.buffer.name, this.user.nick, reason);
         },
-        createBanMask: function banMask() {
+        createBanMask: function createBanMask() {
+            // try to ban via user account first
+            if (this.user.account) {
+                // if EXTBAN is supported use that
+                let extban = IrcdDiffs.extbanAccount(this.network);
+                if (extban) {
+                    return extban + ':' + this.user.account;
+                }
+
+                // if the account name is in the host ban the host
+                // Eg. user@network/user/accountname
+                if (this.user.host.toLowerCase().indexOf(this.user.account.toLowerCase()) > -1) {
+                    return '*!*@' + this.user.host;
+                }
+            }
+
+            // if an ip address is in the host and not the whole host ban the ip
+            // Eg. user@gateway/1.2.3.4
+            let ipTest = new RegExp('(' + ipRegex.v4().source + '|' + ipRegex.v6().source + ')');
+            if (ipTest.test(this.user.host)) {
+                let match = this.user.host.match(ipTest)[0];
+                if (match !== this.user.host) {
+                    return '*!*@*' + match + '*';
+                }
+            }
+
+            // if an 8 char hex is the username ban by username. Commonly used in gateways
+            // Eg. 59d4c432@a.clients.kiwiirc.com
+            let hexTest = /^([a-f0-9]{8})$/i;
+            if (hexTest.test(this.user.username)) {
+                let match = this.user.username.match(hexTest)[0];
+                return '*!' + match + '@*';
+            }
+
+            // fallback to default_ban_mask from config
             let mask = this.$state.setting('buffers.default_ban_mask');
             mask = mask.replace('%n', this.user.nick);
             mask = mask.replace('%i', this.user.username);
