@@ -13,7 +13,8 @@ export default class Locales {
         this.nameSpace = nameSpace;
         this.testKey = testKey;
 
-        kiwi.i18n.on('languageChanged', (lang) => {
+        kiwi.i18n.on('languageChanged', (_lang) => {
+            let lang = _lang.toLowerCase();
             if (kiwi.i18n.getResource(lang, this.nameSpace, this.testKey)) {
                 return;
             }
