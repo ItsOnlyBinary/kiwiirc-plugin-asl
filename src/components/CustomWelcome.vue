@@ -401,7 +401,11 @@ export default {
             // the user has just put in place
             net.connection.nick = this.nick;
             net.password = password;
-            net.gecos = this.buildGecos();
+
+            let gecos = this.buildGecos();
+            if (gecos) {
+                net.gecos = gecos;
+            }
 
             if (_.trim(options.encoding || '')) {
                 net.connection.encoding = _.trim(options.encoding);
