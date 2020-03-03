@@ -2,7 +2,7 @@
 
 export function setDefaults() {
     // Where the webbrowser can find the locale json files
-    setSettingDefault('plugin-asl.localesPath', 'static/plugins/plugin-asl/locales/');
+    setSettingDefault('plugin-asl.localesPath', 'static/plugins/plugin-asl/locales');
 
     // Type 1 "[a/s/l?] realname?"
     // Type 2 "a s l?"
@@ -16,6 +16,11 @@ export function setDefaults() {
 
     // What icon to use for User Browser
     setSettingDefault('plugin-asl.userBrowserIcon', 'fa-heart');
+
+    // What colour to use if user did not provide sex
+    // 'default' is css default colour
+    // '' for random
+    setSettingDefault('plugin-asl.fallbackColour', 'default');
 
     // If should show asl as single line in UserBox
     setSettingDefault('plugin-asl.singleLineUserbox', false);

@@ -1,4 +1,4 @@
-# Custom Startup for [Kiwi IRC] (https://kiwiirc.com)
+# Custom Startup for [Kiwi IRC](https://kiwiirc.com)
 
 This plugin creates a customised startup screen for age/sex/location based off Welcome.vue
 
@@ -36,14 +36,18 @@ It also provides a nicklist style user list with search/filter for users to find
 
 #### Configuration
 
+[More details on the wiki](https://github.com/ItsOnlyBinary/kiwiirc-plugin-asl/wiki/Configuration)
+
 note: the variables starting with _ are treated as translation keys
 
 ```
 "plugin-asl" : {
+    "localesPath": "static/plugins/plugin-asl/locales",
     "gecosType": 1,
     "showRealname": false,
     "showUserBrowser": true,
     "userBrowserIcon": "fa-heart",
+    "fallbackColour": "default",
     "singleLineUserbox": false,
     "singleLineString": {
         "age": "%a years",

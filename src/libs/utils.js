@@ -24,7 +24,8 @@ export function parseGecos(gecos) {
 export function getColour(asl) {
     let sex = asl && asl.s ? asl.s : '';
     let sexes = kiwi.state.getSetting('settings.plugin-asl.sexes');
-    return sexes[sex] ? sexes[sex].colour : 'default';
+    let fallbackColour = kiwi.state.getSetting('settings.plugin-asl.fallbackColour');
+    return sexes[sex] ? sexes[sex].colour : fallbackColour;
 }
 
 export function getSexChar(sex) {
