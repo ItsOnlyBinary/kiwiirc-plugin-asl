@@ -258,24 +258,32 @@ export default {
         let queryKeys = kiwi.state.getSetting('settings.plugin-asl.queryKeys');
         if (Misc.queryStringVal(queryKeys.age)) {
             this.age = Misc.queryStringVal(queryKeys.age);
+        } else if (options.age) {
+            this.age = options.age;
         } else if (parsedGecos && parsedGecos.asl) {
             this.age = parsedGecos.asl.a;
         }
 
         if (Misc.queryStringVal(queryKeys.sex)) {
             this.sex = Misc.queryStringVal(queryKeys.sex);
+        } else if (options.sex) {
+            this.sex = options.sex;
         } else if (parsedGecos && parsedGecos.asl) {
             this.sex = utils.getSexChar(parsedGecos.asl.s);
         }
 
         if (Misc.queryStringVal(queryKeys.location)) {
             this.location = Misc.queryStringVal(queryKeys.location);
+        } else if (options.location) {
+            this.location = options.location;
         } else if (parsedGecos && parsedGecos.asl) {
             this.location = parsedGecos.asl.l;
         }
 
         if (Misc.queryStringVal(queryKeys.realname)) {
             this.realname = Misc.queryStringVal(queryKeys.realname);
+        } else if (options.realname) {
+            this.realname = options.realname;
         } else if (parsedGecos && parsedGecos.realname) {
             this.realname = parsedGecos.realname;
         }
