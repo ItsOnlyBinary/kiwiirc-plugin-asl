@@ -260,7 +260,7 @@ export default {
         let queryKeys = kiwi.state.getSetting('settings.plugin-asl.queryKeys');
         if (Misc.queryStringVal(queryKeys.age)) {
             this.age = Misc.queryStringVal(queryKeys.age);
-        } else if (options.age) {
+        } else if (typeof options.age !== 'undefined') {
             this.age = options.age;
         } else if (parsedGecos && parsedGecos.asl) {
             this.age = parsedGecos.asl.a;
@@ -268,7 +268,7 @@ export default {
 
         if (Misc.queryStringVal(queryKeys.sex)) {
             this.sex = Misc.queryStringVal(queryKeys.sex);
-        } else if (options.sex) {
+        } else if (typeof options.sex !== 'undefined') {
             this.sex = options.sex;
         } else if (parsedGecos && parsedGecos.asl) {
             this.sex = utils.getSexChar(parsedGecos.asl.s);
@@ -276,7 +276,7 @@ export default {
 
         if (Misc.queryStringVal(queryKeys.location)) {
             this.location = Misc.queryStringVal(queryKeys.location);
-        } else if (options.location) {
+        } else if (typeof options.location !== 'undefined') {
             this.location = options.location;
         } else if (parsedGecos && parsedGecos.asl) {
             this.location = parsedGecos.asl.l;
@@ -284,7 +284,7 @@ export default {
 
         if (Misc.queryStringVal(queryKeys.realname)) {
             this.realname = Misc.queryStringVal(queryKeys.realname);
-        } else if (options.realname) {
+        } else if (typeof options.realname !== 'undefined') {
             this.realname = options.realname;
         } else if (parsedGecos && parsedGecos.realname) {
             this.realname = parsedGecos.realname;
