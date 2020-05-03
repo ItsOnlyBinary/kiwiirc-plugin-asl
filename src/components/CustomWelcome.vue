@@ -255,7 +255,6 @@ export default {
         let parsedGecos = null;
         if (previousNet && previousNet.gecos) {
             parsedGecos = utils.parseGecos(previousNet.gecos);
-            this.realname = parsedGecos.realname;
         }
 
         let queryKeys = kiwi.state.getSetting('settings.plugin-asl.queryKeys');
@@ -331,22 +330,21 @@ export default {
     },
     methods: {
         buildGecos() {
-            if (!this.age || !this.sex) {
+            if (!this.age && !this.sex && !this.location) {
                 return '';
             }
-
             let gecosId = kiwi.state.getSetting('settings.plugin-asl.gecosType');
             let gecosType = kiwi.state.pluginASL.gecosTypes[gecosId - 1];
             let gecos = gecosType.build;
-            let asl = [this.age, this.sex];
+            let asl = [this.age || '*', this.sex || '*'];
             if (this.location) {
                 asl.push(this.location);
             }
 
             return gecos.replace('%asl', asl.join(gecosType.separator))
-                .replace('%a', this.age)
-                .replace('%s', this.sex)
-                .replace('%l', this.location || '')
+                .replace('%a', this.age || '*')
+                .replace('%s', this.sex || '*')
+                .replace('%l', this.location || '*')
                 .replace('%r', this.realname || '')
                 .trim();
         },

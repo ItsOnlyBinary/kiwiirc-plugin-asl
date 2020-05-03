@@ -7,9 +7,9 @@ export function parseGecos(gecos) {
         if (result) {
             return {
                 asl: {
-                    a: result[1],
+                    a: result[1] === '*' ? null : result[1],
                     s: getSex(result[2]),
-                    l: result[4],
+                    l: result[4] === '*' ? null : result[4] || null,
                 },
                 realname: result[6] ? result[6].trim() : '',
             };

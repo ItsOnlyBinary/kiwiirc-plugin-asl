@@ -79,7 +79,7 @@ export function setDefaults() {
     }
     kiwi.state.pluginASL.gecosTypes = [];
     kiwi.state.pluginASL.gecosTypes.push({
-        regex: new RegExp('\\[(\\d+)\\/([' + sexesRegex + '])(\\/(.*))?\\](\\s*(.+))?'),
+        regex: new RegExp('\\[(\\d+|\\*)\\/([' + sexesRegex + '*])(\\/(.*?|\\*))?\\](\\s*(.+))?'),
         build: '[%asl] %r',
         separator: '/',
     });
