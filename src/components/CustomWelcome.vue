@@ -321,9 +321,7 @@ export default {
         if (
             options.autoConnect &&
             this.nick &&
-            (this.channel || this.connectWithoutChannel) &&
-            this.age &&
-            this.sex
+            (this.channel || this.connectWithoutChannel)
         ) {
             this.startUp();
         }
