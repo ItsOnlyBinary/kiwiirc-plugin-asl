@@ -286,7 +286,7 @@ export default {
             this.realname = Misc.queryStringVal(queryKeys.realname);
         } else if (typeof options.realname !== 'undefined') {
             this.realname = options.realname;
-        } else if (parsedGecos && parsedGecos.realname) {
+        } else if (this.showRealname && parsedGecos && parsedGecos.realname) {
             this.realname = parsedGecos.realname;
         }
 
