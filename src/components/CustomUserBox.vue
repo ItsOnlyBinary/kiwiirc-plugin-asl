@@ -192,7 +192,10 @@ export default {
                 out.push(parts.age.replace('%a', this.user.asl.a));
             }
             if (this.user.asl.s) {
-                out.push(parts.sex.replace('%s', this.user.asl.s));
+                let sex = this.user.asl.s[0] === '_' ?
+                    TextFormatting.t('plugin-asl:' + this.user.asl.s.substr(1)) :
+                    this.user.asl.s
+                out.push(parts.sex.replace('%s', sex));
             }
             if (this.user.asl.l) {
                 out.push(parts.location.replace('%l', this.user.asl.l));
