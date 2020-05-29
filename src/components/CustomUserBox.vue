@@ -4,11 +4,16 @@
             {{ $t('user_you') }}
         </span>
         <div class="kiwi-userbox-header">
-            <h3>
-                <away-status-indicator :network="network" :user="user" />
-                <span :style="{'color': user.getColour()}">{{ user.nick }}</span>
-                <span v-if="userMode" class="kiwi-userbox-modestring">+{{ userMode }}</span>
-            </h3>
+            <div class="kiwi-userbox-header-nick">
+                <div class="kiwi-avatar-container kiwi-avatar-userbox">
+                    <avatar :network="network" :user="user" size="small"/>
+                    <away-status-indicator :network="network" :user="user" />                
+                </div>
+                <h3>
+                    <span :style="{'color': user.getColour()}">{{ user.nick }}</span>
+                    <span v-if="userMode" class="kiwi-userbox-modestring">+{{ userMode }}</span>
+                </h3>
+            </div>
             <div class="kiwi-userbox-usermask">{{ user.username }}@{{ user.host }}</div>
         </div>
 
@@ -169,10 +174,12 @@ let IrcdDiffs = kiwi.require('helpers/IrcdDiffs');
 let toHtml = kiwi.require('libs/renderers/Html');
 let parseMessage = kiwi.require('libs/MessageParser');
 let AwayStatusIndicator = kiwi.require('components/AwayStatusIndicator');
+let Avatar = kiwi.require('components/Avatar');
 
 export default {
     components: {
         AwayStatusIndicator,
+        Avatar,
     },
     props: ['buffer', 'network', 'user'],
     data: function data() {
@@ -193,9 +200,9 @@ export default {
             }
             if (this.user.asl.s) {
                 let sex = this.user.asl.s[0] === '_' ?
-                    TextFormatting.t('plugin-asl:' + this.user.asl.s.substr(1)) :
-                    this.user.asl.s
-                out.push(parts.sex.replace('%s', sex));
+                     TextFormatting.t('plugin-asl:' + this.user.asl.s.substr(1)) :
+                     this.user.asl.s
+                 out.push(parts.sex.replace('%s', sex));
             }
             if (this.user.asl.l) {
                 out.push(parts.location.replace('%l', this.user.asl.l));
@@ -446,11 +453,27 @@ export default {
     overflow: hidden;
 }
 
+.kiwi-userbox-header-nick {
+    display:flex;
+}
+
+.kiwi-avatar-userbox .kiwi-avatar{
+    width:40px;
+    height:40px;
+}
+
+.kiwi-avatar-userbox .kiwi-awaystatusindicator {
+    width: 10px;
+    top: 4px;
+    height: 10px;   
+}
+
 .kiwi-userbox-header h3 {
     width: 100%;
     padding: 0;
     cursor: default;
     display: inline-block;
+    line-height:44px;
 }
 
 .kiwi-userbox-modestring {
