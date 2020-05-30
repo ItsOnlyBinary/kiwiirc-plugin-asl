@@ -6,8 +6,8 @@
         <div class="kiwi-userbox-header">
             <div class="kiwi-userbox-header-nick">
                 <div class="kiwi-avatar-container kiwi-avatar-userbox">
-                    <avatar :network="network" :user="user" size="small" />
-                    <away-status-indicator :network="network" :user="user" />
+                    <avatar :network="network" :user="user" size="small"/>
+                    <away-status-indicator :network="network" :user="user" />                
                 </div>
                 <h3>
                     <span :style="{'color': user.getColour()}">{{ user.nick }}</span>
@@ -465,7 +465,7 @@ export default {
 .kiwi-avatar-userbox .kiwi-awaystatusindicator {
     width: 10px;
     top: 4px;
-    height: 10px;
+    height: 10px;   
 }
 
 .kiwi-userbox-header h3 {
