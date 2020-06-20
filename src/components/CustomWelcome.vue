@@ -21,7 +21,12 @@
                     </span>
                 </div>
 
-                <input-text v-model="nick" :label="$t('nick')" type="text" />
+                <input-text
+                    v-model="nick"
+                    v-focus="!nick || !show_password_box"
+                    :label="$t('nick')"
+                    type="text"
+                />
 
                 <div v-if="showPass && toggablePass" class="kiwi-welcome-simple-input-container">
                     <label
@@ -37,7 +42,7 @@
                 >
                     <input-text
                         v-model="password"
-                        v-focus
+                        v-focus="nick || show_password_box"
                         :show-plain-text="true"
                         :label="$t('password')"
                         type="password"
@@ -114,13 +119,13 @@
 </template>
 
 <script>
+'kiwi public';
 
 /* global _:true */
 /* global kiwi:true */
 
 import * as utils from '../libs/utils.js';
 
-let state = kiwi.state;
 let Misc = kiwi.require('helpers/Misc');
 let Logger = kiwi.require('libs/Logger');
 let BouncerProvider = kiwi.require('libs/BouncerProvider');
@@ -168,19 +173,19 @@ export default {
             return this.$state.settings.startupOptions;
         },
         greetingText: function greetingText() {
-            let greeting = state.settings.startupOptions.greetingText;
+            let greeting = this.$state.settings.startupOptions.greetingText;
             return typeof greeting === 'string' ?
                 greeting :
                 this.$t('start_greeting');
         },
         footerText: function footerText() {
-            let footer = state.settings.startupOptions.footerText;
+            let footer = this.$state.settings.startupOptions.footerText;
             return typeof footer === 'string' ?
                 footer :
                 '';
         },
         buttonText: function buttonText() {
-            let greeting = state.settings.startupOptions.buttonText;
+            let greeting = this.$state.settings.startupOptions.buttonText;
             return typeof greeting === 'string' ?
                 greeting :
                 this.$t('start_button');
@@ -237,11 +242,12 @@ export default {
     },
     created: function created() {
         let options = this.startupOptions;
+        let connectOptions = this.connectOptions();
 
         // Take some settings from a previous network if available
         let previousNet = null;
-        if (options.server.trim()) {
-            previousNet = state.getNetworkFromAddress(options.server.trim());
+        if (connectOptions.hostname.trim()) {
+            previousNet = this.$state.getNetworkFromAddress(connectOptions.hostname.trim());
         }
 
         if (Misc.queryStringVal('nick')) {
@@ -315,14 +321,16 @@ export default {
             this.connectWithoutChannel = true;
 
             let bouncer = new BouncerProvider(this.$state);
-            bouncer.enable(options.server, options.port, options.tls, options.direct, options.path);
+            bouncer.enable(
+                connectOptions.hostname,
+                connectOptions.port,
+                connectOptions.tls,
+                connectOptions.direct,
+                connectOptions.direct_path
+            );
         }
 
-        if (
-            options.autoConnect &&
-            this.nick &&
-            (this.channel || this.connectWithoutChannel)
-        ) {
+        if (options.autoConnect && this.nick && (this.channel || this.connectWithoutChannel)) {
             this.startUp();
         }
     },
@@ -373,32 +381,26 @@ export default {
         startUp: function startUp() {
             this.errorMessage = '';
 
-            let options = Object.assign({}, state.settings.startupOptions);
-
-            // If a server isn't specified in the config, set some defaults
-            // The webircgateway will have a default network set and will connect
-            // there instead. This just removes the requirement of specifying the same
-            // irc network address in both the server-side and client side configs
-            options.server = options.server || 'default';
-            options.port = options.port || 6667;
-
-            let netAddress = _.trim(options.server);
+            let options = Object.assign({}, this.$state.settings.startupOptions);
+            let connectOptions = this.connectOptions();
+            let netAddress = _.trim(connectOptions.hostname);
 
             // Check if we have this network already
-            let net = this.network || state.getNetworkFromAddress(netAddress);
+            let net = this.network || this.$state.getNetworkFromAddress(netAddress);
 
             let password = this.password;
 
             // If the network doesn't already exist, add a new one
-            net = net || state.addNetwork('Network', this.nick, {
+            net = net || this.$state.addNetwork('Network', this.nick, {
                 server: netAddress,
-                port: options.port,
-                tls: options.tls,
+                port: connectOptions.port,
+                tls: connectOptions.tls,
                 password: password,
                 encoding: _.trim(options.encoding),
-                direct: !!options.direct,
-                path: options.direct_path || '',
+                direct: connectOptions.direct,
+                path: connectOptions.direct_path || '',
                 gecos: options.gecos,
+                username: options.username,
             });
 
             // Clear the server buffer in case it already existed and contains messages relating to
@@ -433,11 +435,11 @@ export default {
             let hasSwitchedActiveBuffer = false;
             let bufferObjs = Misc.extractBuffers(this.channel);
             bufferObjs.forEach((bufferObj) => {
-                let newBuffer = state.addBuffer(net.id, bufferObj.name);
+                let newBuffer = this.$state.addBuffer(net.id, bufferObj.name);
                 newBuffer.enabled = true;
 
                 if (newBuffer && !hasSwitchedActiveBuffer) {
-                    state.setActiveBuffer(net.id, newBuffer.name);
+                    this.$state.setActiveBuffer(net.id, newBuffer.name);
                     hasSwitchedActiveBuffer = true;
                 }
 
@@ -448,7 +450,7 @@ export default {
 
             // switch to server buffer if no channels are joined
             if (!options.bouncer && !hasSwitchedActiveBuffer) {
-                state.setActiveBuffer(net.id, net.serverBuffer().name);
+                this.$state.setActiveBuffer(net.id, net.serverBuffer().name);
             }
 
             net.ircClient.connect();
@@ -474,6 +476,27 @@ export default {
         handleCaptcha(isReady) {
             this.captchaReady = isReady;
         },
+        connectOptions() {
+            let options = Object.assign({}, this.$state.settings.startupOptions);
+            let connectOptions = Misc.connectionInfoFromConfig(options);
+
+            // If a server isn't specified in the config, set some defaults
+            // The webircgateway will have a default network set and will connect
+            // there instead. This just removes the requirement of specifying the same
+            // irc network address in both the server-side and client side configs
+            connectOptions.hostname = connectOptions.hostname || 'default';
+            if (!connectOptions.port && connectOptions.direct) {
+                connectOptions.port = connectOptions.tls ?
+                    443 :
+                    80;
+            } else if (!connectOptions.port && !connectOptions.direct) {
+                connectOptions.port = connectOptions.tls ?
+                    6697 :
+                    6667;
+            }
+
+            return connectOptions;
+        },
     },
 };
 </script>
@@ -483,12 +506,26 @@ export default {
 /* Containers */
 form.kiwi-welcome-simple-form {
     width: 70%;
-    padding: 0 20px;
+    padding: 20px;
 }
 
 @media (max-width: 1025px) {
     form.kiwi-welcome-simple-form {
         width: 100%;
+    }
+}
+
+@media (max-width: 850px) {
+    form.kiwi-welcome-simple-form {
+        background: var(--brand-default-bg);
+        border-radius: 5px;
+        box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.2);
+    }
+}
+
+@media (max-width: 600px) {
+    form.kiwi-welcome-simple-form {
+        max-width: 350px;
     }
 }
 

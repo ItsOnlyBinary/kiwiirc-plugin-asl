@@ -9,7 +9,7 @@
         "watch": "webpack --watch",
         "dev": "webpack-dev-server",
         "lint:eslint": "eslint --ext .js,.vue ./",
-        "lint:stylelint": "stylelint \"**/*.{vue,htm,html,css,sss,less,scss}\"",
+        "lint:stylelint": "stylelint \"src/**/*.{vue,htm,html,css,sss,less,scss}\"",
         "lint": "npm run lint:eslint && npm run lint:stylelint"
     },
     "devDependencies": {
