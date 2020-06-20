@@ -1,10 +1,9 @@
 <template>
     <div class="plugin-asl-userbrowser-container">
-        <div>
+        <div class="u-form">
             <div
                 v-for="(value, name) in sexes"
                 :key="'sexes-'+name"
-                :style="{ 'color': sexes[name].colour }"
                 class="plugin-asl-userbrowser-sexes"
             >
                 <input
@@ -13,7 +12,7 @@
                     type="checkbox"
                     @change="toggleSex($event, name)"
                 >
-                <label :for="'asl-'+name">
+                <label :for="'asl-'+name" :style="{ 'color': sexes[name].colour }">
                     {{ name[0] === '_' ? $t('plugin-asl:' + name.substr(1)) : name }}
                 </label>
             </div>
@@ -78,8 +77,9 @@ export default {
     },
     computed: {
         filteredUsers() {
+            let bufferUsers = this.buffer.users;
             let filter = this.filter.toLowerCase();
-            return _.filter(this.buffer.users, (user) => {
+            return _.filter(bufferUsers, (user) => {
                 if (!user.asl) {
                     return false;
                 }
@@ -164,12 +164,13 @@ export default {
 .plugin-asl-userbrowser-sexes {
     display: inline-block;
     font-weight: bold;
-    margin: 4px;
+    margin: 4px 4px 4px 10px;
 }
 
 .plugin-asl-userbrowser-sexes input,
 .plugin-asl-userbrowser-sexes label {
     vertical-align: middle;
+    display: inline-block;
 }
 
 .plugin-asl-userbrowser-ages {
@@ -177,8 +178,12 @@ export default {
 }
 
 .plugin-asl-userbrowser-filter {
-    margin-left: 7px;
+    margin-left: 10px;
     width: 100%;
+}
+
+.plugin-asl-userbrowser-filter input {
+    width: 300px;
 }
 
 .plugin-asl-userbrowser-filter i {

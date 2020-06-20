@@ -1,7 +1,7 @@
 const path = require('path');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const isProd = process.argv.indexOf('--debug') === -1;
+const makeSourceMap = process.argv.indexOf('--srcmap') > -1;
 
 module.exports = {
     mode: 'production',
@@ -43,7 +43,7 @@ module.exports = {
             }
         ])
     ],
-    devtool: isProd ? '' : 'source-map',
+    devtool: makeSourceMap ? 'source-map' : '',
     devServer: {
         filename: 'plugin-asl.js',
         contentBase: path.join(__dirname, "dist"),

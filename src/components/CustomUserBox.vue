@@ -194,7 +194,7 @@ export default {
             if (this.user.asl.s) {
                 let sex = this.user.asl.s[0] === '_' ?
                     TextFormatting.t('plugin-asl:' + this.user.asl.s.substr(1)) :
-                    this.user.asl.s
+                    this.user.asl.s;
                 out.push(parts.sex.replace('%s', sex));
             }
             if (this.user.asl.l) {
