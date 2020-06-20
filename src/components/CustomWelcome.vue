@@ -2,18 +2,20 @@
     <startup-layout ref="layout"
                     class="kiwi-welcome-simple"
     >
-        <template v-slot:connection v-if="startupOptions.altComponent">
+        <template v-if="startupOptions.altComponent" v-slot:connection>
             <component :is="startupOptions.altComponent" @close="onAltClose" />
         </template>
-        <template v-slot:connection v-else-if="!network || network.state === 'disconnected'">
+        <template v-else v-slot:connection>
             <form class="u-form u-form--big kiwi-welcome-simple-form" @submit.prevent="formSubmit">
-                <h2 v-html="greetingText"/>
+                <h2 v-html="greetingText" />
                 <div v-if="errorMessage" class="kiwi-welcome-simple-error">{{ errorMessage }}</div>
                 <div
                     v-else-if="network && (network.last_error || network.state_error)"
                     class="kiwi-welcome-simple-error"
                 >
-                    We couldn't connect to the server :(
+                    <span v-if="!network.last_error && network.state_error">
+                        {{ $t('network_noconnect') }}
+                    </span>
                     <span>
                         {{ network.last_error || readableStateError(network.state_error) }}
                     </span>
@@ -25,7 +27,7 @@
                     <label
                         class="kiwi-welcome-simple-have-password"
                     >
-                        <input v-model="show_password_box" type="checkbox" >
+                        <input v-model="show_password_box" type="checkbox">
                         <span> {{ $t('password_have') }} </span>
                     </label>
                 </div>
@@ -34,34 +36,50 @@
                      class="kiwi-welcome-simple-input-container"
                 >
                     <input-text
-                        v-focus
                         v-model="password"
+                        v-focus
                         :show-plain-text="true"
                         :label="$t('password')"
                         type="password"
                     />
                 </div>
                 <div class="kiwi-welcome-simple-asl-container">
-                <input-text
-                    label="Age"
-                    v-model="age"
-                    class="kiwi-welcome-simple-age"
-                    type="number"
-                />
-                <div class="kiwi-welcome-simple-sex">
-                    <label>Sex</label>
-                    <select v-model="sex">
-                        <option :value="null" selected disabled>Select</option>
-                        <option value="M">Male</option>
-                        <option value="F">Female</option>
-                        <option value="O">Other</option>
-                    </select>
+                    <div class="kiwi-welcome-simple-age-sex">
+                        <input-text
+                            v-model="age"
+                            :label="$t('plugin-asl:age')"
+                            class="kiwi-welcome-simple-age"
+                            type="number"
+                        />
+                        <div class="kiwi-welcome-simple-sex">
+                            <label>{{ $t('plugin-asl:sex') }}</label>
+                            <select v-model="sex">
+                                <option :value="null" selected disabled>
+                                    {{ $t('plugin-asl:select') }}
+                                </option>
+                                <option
+                                    v-for="(value, name) in sexes"
+                                    :key="'sexes-'+name"
+                                    :value="value.chars[0]"
+                                    :style="{ 'color': sexes[name].colour }"
+                                >{{
+                                    name[0] === '_' ?
+                                        $t('plugin-asl:' + name.substr(1)) :
+                                        name
+                                }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <input-text
+                        v-model="location"
+                        :label="$t('plugin-asl:location')"
+                    />
+                    <input-text
+                        v-if="showRealname"
+                        v-model="realname"
+                        :label="$t('whois_realname')"
+                    />
                 </div>
-                </div>
-                <input-text
-                    label="Location"
-                    v-model="location"
-                />
 
                 <div v-if="showChannel" class="kiwi-welcome-simple-input-container">
                     <input-text
@@ -71,26 +89,36 @@
                 </div>
 
                 <captcha
-                    @ready="handleCaptcha"
+                    :network="network"
                 />
 
                 <button
+                    v-if="!network || network.state === 'disconnected'"
                     :disabled="!readyToStart"
                     class="u-button u-button-primary u-submit kiwi-welcome-simple-start"
                     type="submit"
                     v-html="buttonText"
                 />
+                <button
+                    v-else
+                    class="u-button u-button-primary u-submit kiwi-welcome-simple-start"
+                    disabled
+                >
+                    <i class="fa fa-spin fa-spinner" aria-hidden="true" />
+                </button>
 
-                <div v-html="footerText"/>
+                <div v-html="footerText" />
             </form>
-        </template>
-        <template v-slot:connection v-else>
-            <i class="fa fa-spin fa-spinner" aria-hidden="true"/>
         </template>
     </startup-layout>
 </template>
 
 <script>
+
+/* global _:true */
+/* global kiwi:true */
+
+import * as utils from '../libs/utils.js';
 
 let state = kiwi.state;
 let Misc = kiwi.require('helpers/Misc');
@@ -123,10 +151,19 @@ export default {
             captchaReady: false,
             age: null,
             sex: null,
-            location: null,
+            location: '',
+            realname: '',
         };
     },
     computed: {
+        sexes() {
+            return kiwi.state.getSetting('settings.plugin-asl.sexes');
+        },
+        showRealname() {
+            let showRealname = this.$state.getSetting('settings.plugin-asl.showRealname');
+            let gecosType = this.$state.getSetting('settings.plugin-asl.gecosType');
+            return showRealname && gecosType === 1;
+        },
         startupOptions() {
             return this.$state.settings.startupOptions;
         },
@@ -157,10 +194,6 @@ export default {
 
             // If toggling the password is is disabled, assume it is required
             if (!this.toggablePass && !this.password) {
-                ready = false;
-            }
-
-            if (!this.captchaReady) {
                 ready = false;
             }
 
@@ -219,6 +252,44 @@ export default {
             this.nick = options.nick;
         }
 
+        let parsedGecos = null;
+        if (previousNet && previousNet.gecos) {
+            parsedGecos = utils.parseGecos(previousNet.gecos);
+        }
+
+        let queryKeys = kiwi.state.getSetting('settings.plugin-asl.queryKeys');
+        if (Misc.queryStringVal(queryKeys.age)) {
+            this.age = Misc.queryStringVal(queryKeys.age);
+        } else if (typeof options.age !== 'undefined') {
+            this.age = options.age;
+        } else if (parsedGecos && parsedGecos.asl) {
+            this.age = parsedGecos.asl.a;
+        }
+
+        if (Misc.queryStringVal(queryKeys.sex)) {
+            this.sex = Misc.queryStringVal(queryKeys.sex);
+        } else if (typeof options.sex !== 'undefined') {
+            this.sex = options.sex;
+        } else if (parsedGecos && parsedGecos.asl) {
+            this.sex = utils.getSexChar(parsedGecos.asl.s);
+        }
+
+        if (Misc.queryStringVal(queryKeys.location)) {
+            this.location = Misc.queryStringVal(queryKeys.location);
+        } else if (typeof options.location !== 'undefined') {
+            this.location = options.location;
+        } else if (parsedGecos && parsedGecos.asl) {
+            this.location = parsedGecos.asl.l;
+        }
+
+        if (Misc.queryStringVal(queryKeys.realname)) {
+            this.realname = Misc.queryStringVal(queryKeys.realname);
+        } else if (typeof options.realname !== 'undefined') {
+            this.realname = options.realname;
+        } else if (this.showRealname && parsedGecos && parsedGecos.realname) {
+            this.realname = parsedGecos.realname;
+        }
+
         this.nick = this.processNickRandomNumber(this.nick || '');
         this.password = options.password || '';
         this.channel = decodeURIComponent(window.location.hash) || options.channel || '';
@@ -247,11 +318,34 @@ export default {
             bouncer.enable(options.server, options.port, options.tls, options.direct, options.path);
         }
 
-        if (options.autoConnect && this.nick && (this.channel || this.connectWithoutChannel)) {
+        if (
+            options.autoConnect &&
+            this.nick &&
+            (this.channel || this.connectWithoutChannel)
+        ) {
             this.startUp();
         }
     },
     methods: {
+        buildGecos() {
+            if (!this.age && !this.sex && !this.location) {
+                return '';
+            }
+            let gecosId = kiwi.state.getSetting('settings.plugin-asl.gecosType');
+            let gecosType = kiwi.state.pluginASL.gecosTypes[gecosId - 1];
+            let gecos = gecosType.build;
+            let asl = [this.age || '*', this.sex || '*'];
+            if (this.location) {
+                asl.push(this.location);
+            }
+
+            return gecos.replace('%asl', asl.join(gecosType.separator))
+                .replace('%a', this.age || '*')
+                .replace('%s', this.sex || '*')
+                .replace('%l', this.location || '*')
+                .replace('%r', this.realname || '')
+                .trim();
+        },
         onAltClose(event) {
             if (event.channel) {
                 this.channel = event.channel;
@@ -294,9 +388,6 @@ export default {
             let net = this.network || state.getNetworkFromAddress(netAddress);
 
             let password = this.password;
-            if (options.bouncer) {
-                password = `${this.nick}:${this.password}`;
-            }
 
             // If the network doesn't already exist, add a new one
             net = net || state.addNetwork('Network', this.nick, {
@@ -310,11 +401,27 @@ export default {
                 gecos: options.gecos,
             });
 
+            // Clear the server buffer in case it already existed and contains messages relating to
+            // the previous connection, such as errors. They are now redundant since this is a
+            // new connection.
+            net.serverBuffer().clearMessages();
+
             // If we retreived an existing network, update the nick+password with what
             // the user has just put in place
             net.connection.nick = this.nick;
-            net.password = password;
-            net.gecos = this.buildGecos();
+            if (options.bouncer) {
+                // Bouncer mode uses server PASS
+                net.connection.password = `${this.nick}:${password}`;
+                net.password = '';
+            } else {
+                net.connection.password = '';
+                net.password = password;
+            }
+
+            let gecos = this.buildGecos();
+            if (gecos) {
+                net.gecos = gecos;
+            }
 
             if (_.trim(options.encoding || '')) {
                 net.connection.encoding = _.trim(options.encoding);
@@ -367,12 +474,6 @@ export default {
         handleCaptcha(isReady) {
             this.captchaReady = isReady;
         },
-        buildGecos() {
-            return '[' +
-                (this.age || 'U') + '/' +
-                (this.sex || 'U') + '/' +
-                (this.location || 'U') + ']';
-        }
     },
 };
 </script>
@@ -404,7 +505,7 @@ form.kiwi-welcome-simple-form h2 {
 .kiwi-welcome-simple-error {
     text-align: center;
     margin: 1em 0;
-    padding: 0.3em;
+    padding: 1em;
 }
 
 .kiwi-welcome-simple-error span {
@@ -423,30 +524,35 @@ form.kiwi-welcome-simple-form h2 {
     margin: 20px 0 40px 0;
 }
 
-.kiwi-welcome-simple-asl-container {
-    width: 100%;
+.kiwi-welcome-simple-age-sex {
     height: auto;
     position: relative;
-    margin: 0 0 0px 0;
-    display:flex;
+    margin: 0;
+    display: flex;
+}
+
+.kiwi-welcome-simple-age {
+    display: inline-block;
+    width: 50%;
 }
 
 .kiwi-welcome-simple-sex {
-    flex:1;
-    margin-left:5px;
+    display: inline-block;
+    margin-left: 5px;
+    width: 50%;
 }
 
 .u-form .kiwi-welcome-simple-sex select {
-   border-radius: 5px;
-   color: var(--brand-input-fg);
-   background-color: var(--brand-default-bg);
-   font-size: inherit;
-   overflow: hidden;
-   padding: 14px 14px;
-   text-overflow: ellipsis;
-   white-space: nowrap;
-   box-sizing: border-box;
-   width:100%;
+    border-radius: 5px;
+    color: var(--brand-input-fg);
+    background-color: var(--brand-default-bg);
+    font-size: inherit;
+    overflow: hidden;
+    padding: 14px 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .u-form .kiwi-welcome-simple-sex select:focus {
@@ -472,11 +578,6 @@ form.kiwi-welcome-simple-form h2 {
 .kiwi-welcome-simple-start[disabled] {
     cursor: not-allowed;
     opacity: 0.65;
-}
-
-/* Make the preloader icon larger */
-.kiwi-welcome-simple .fa-spinner {
-    font-size: 6em;
 }
 
 </style>

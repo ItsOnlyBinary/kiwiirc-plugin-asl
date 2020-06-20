@@ -1,51 +1,64 @@
 <template>
     <div class="kiwi-userbox">
         <span v-if="isSelf" class="kiwi-userbox-selfprofile">
-            This is you!
+            {{ $t('user_you') }}
         </span>
         <div class="kiwi-userbox-header">
             <h3>
-                <away-status-indicator :network="network" :user="user"/> {{ user.nick }}
+                <away-status-indicator :network="network" :user="user" />
+                <span :style="{'color': user.getColour()}">{{ user.nick }}</span>
                 <span v-if="userMode" class="kiwi-userbox-modestring">+{{ userMode }}</span>
             </h3>
             <div class="kiwi-userbox-usermask">{{ user.username }}@{{ user.host }}</div>
         </div>
 
         <div class="kiwi-userbox-basicinfo">
-            <div v-if="asl">
-                <div v-if="asl.a">
-                    <span class="kiwi-userbox-basicinfo-title">Age</span>
-                    <span class="kiwi-userbox-basicinfo-data">{{asl.a}}</span>
+            <div v-if="user.asl && singleLine">
+                <span class="kiwi-userbox-basicinfo-title">{{ $t('plugin-asl:info') }}</span>
+                <span class="kiwi-userbox-basicinfo-data">{{ aslString }}</span>
+            </div>
+            <div v-else-if="user.asl">
+                <div v-if="user.asl.a">
+                    <span class="kiwi-userbox-basicinfo-title">{{ $t('plugin-asl:age') }}</span>
+                    <span class="kiwi-userbox-basicinfo-data">{{ user.asl.a }}</span>
                 </div>
-                <div v-if="asl.s">
-                    <span class="kiwi-userbox-basicinfo-title">Sex</span>
-                    <span class="kiwi-userbox-basicinfo-data">{{asl.s}}</span>
+                <div v-if="user.asl.s">
+                    <span class="kiwi-userbox-basicinfo-title">{{ $t('plugin-asl:sex') }}</span>
+                    <span class="kiwi-userbox-basicinfo-data">
+                        {{
+                            user.asl.s[0] === '_' ?
+                                $t('plugin-asl:' + user.asl.s.substr(1)) :
+                                user.asl.s
+                        }}
+                    </span>
                 </div>
-                <div v-if="asl.l">
-                    <span class="kiwi-userbox-basicinfo-title">Location</span>
-                    <span class="kiwi-userbox-basicinfo-data">{{asl.l}}</span>
+                <div v-if="user.asl.l">
+                    <span class="kiwi-userbox-basicinfo-title">
+                        {{ $t('plugin-asl:location') }}
+                    </span>
+                    <span class="kiwi-userbox-basicinfo-data">{{ user.asl.l }}</span>
                 </div>
             </div>
-            <div v-else>
-	            <span class="kiwi-userbox-basicinfo-title">{{ $t('whois_realname') }}:</span>
-	            <span class="kiwi-userbox-basicinfo-data" v-html="formattedRealname"/>
+            <div v-if="user.aslRealname">
+                <span class="kiwi-userbox-basicinfo-title">{{ $t('whois_realname') }}:</span>
+                <span class="kiwi-userbox-basicinfo-data" v-html="formattedRealname" />
             </div>
         </div>
 
         <p class="kiwi-userbox-actions">
             <a v-if="!isSelf" class="kiwi-userbox-action" @click="openQuery">
-                <i class="fa fa-comment-o" aria-hidden="true"/>
+                <i class="fa fa-comment-o" aria-hidden="true" />
                 {{ $t('send_a_message') }}
             </a>
             <a v-if="!whoisRequested" class="kiwi-userbox-action" @click="updateWhoisData">
-                <i class="fa fa-question-circle" aria-hidden="true"/>
+                <i class="fa fa-question-circle" aria-hidden="true" />
                 {{ $t('more_information') }}
             </a>
         </p>
 
         <form v-if="!isSelf" class="u-form kiwi-userbox-ignoreuser">
             <label>
-                <input v-model="user.ignore" type="checkbox" >
+                <input v-model="user.ignore" type="checkbox">
                 <span> {{ $t('ignore_user') }} </span>
             </label>
         </form>
@@ -56,7 +69,7 @@
             class="kiwi-userbox-whois"
         >
             <template v-if="whoisLoading">
-                <i class="fa fa-spinner" aria-hidden="true"/>
+                <i class="fa fa-spinner" aria-hidden="true" />
             </template>
             <template v-else>
                 <span class="kiwi-userbox-whois-line">
@@ -116,7 +129,7 @@
                                kiwi-userbox-opaction-kick kiwi-userbox-opaction"
                         @click="kickUser"
                     >
-                        <i class="fa fa-sign-out" aria-hidden="true"/>
+                        <i class="fa fa-sign-out" aria-hidden="true" />
                         {{ $t('user_kick') }}
                     </button>
                 </label>
@@ -126,7 +139,7 @@
                                kiwi-userbox-opaction-ban kiwi-userbox-opaction"
                         @click="banUser"
                     >
-                        <i class="fa fa-ban" aria-hidden="true"/>
+                        <i class="fa fa-ban" aria-hidden="true" />
                         {{ $t('user_ban') }}
                     </button>
                 </label>
@@ -136,7 +149,7 @@
                                kiwi-userbox-opaction-kickban kiwi-userbox-opaction"
                         @click="kickbanUser"
                     >
-                        <i class="fa fa-exclamation-triangle" aria-hidden="true"/>
+                        <i class="fa fa-exclamation-triangle" aria-hidden="true" />
                         {{ $t('user_kickban') }}
                     </button>
                 </label>
@@ -147,10 +160,10 @@
 
 <script>
 
-'kiwi public';
+/* global kiwi:true */
 
 import * as ipRegex from 'ip-regex';
-import * as utils from '../libs/utils.js';
+
 let TextFormatting = kiwi.require('helpers/TextFormatting');
 let IrcdDiffs = kiwi.require('helpers/IrcdDiffs');
 let toHtml = kiwi.require('libs/renderers/Html');
@@ -169,8 +182,25 @@ export default {
         };
     },
     computed: {
-        asl() {
-            return utils.getASL(this.user.realname);
+        singleLine() {
+            return kiwi.state.getSetting('settings.plugin-asl.singleLineUserbox');
+        },
+        aslString() {
+            let parts = kiwi.state.getSetting('settings.plugin-asl.singleLineString');
+            let out = [];
+            if (this.user.asl.a) {
+                out.push(parts.age.replace('%a', this.user.asl.a));
+            }
+            if (this.user.asl.s) {
+                let sex = this.user.asl.s[0] === '_' ?
+                    TextFormatting.t('plugin-asl:' + this.user.asl.s.substr(1)) :
+                    this.user.asl.s;
+                out.push(parts.sex.replace('%s', sex));
+            }
+            if (this.user.asl.l) {
+                out.push(parts.location.replace('%l', this.user.asl.l));
+            }
+            return out.join(parts.separator);
         },
         // Channel modes differ on some IRCds so get them from the network options
         availableChannelModes: function availableChannelModes() {
@@ -214,7 +244,7 @@ export default {
             return this.buffer.isUserAnOp(this.buffer.getNetwork().nick);
         },
         formattedRealname() {
-            let blocks = parseMessage(this.user.realname || '', { extras: false });
+            let blocks = parseMessage(this.user.aslRealname || '', { extras: false });
             let content = toHtml(blocks, false);
             return content;
         },
