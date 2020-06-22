@@ -32,6 +32,11 @@ export function setDefaults() {
         separator: ' ',
     });
 
+    setSettingDefault('plugin-asl.allowedAge', {
+        min: '18',
+        max: '99',
+    });
+
     // Age ranges to show on UserBrowser select
     // values can be:
     //   string - treated as all
