@@ -25,6 +25,8 @@ export function setDefaults() {
     // If should show asl as single line in UserBox
     setSettingDefault('plugin-asl.singleLineUserbox', false);
 
+    // Single line string builder
+    // age/sex/location (if they exist) are joined by the separator
     setSettingDefault('plugin-asl.singleLineString', {
         age: '%a years',
         sex: '%s',
@@ -32,6 +34,7 @@ export function setDefaults() {
         separator: ' ',
     });
 
+    // Accepted age range for the Connect button to be enabled
     setSettingDefault('plugin-asl.allowedAge', {
         min: '18',
         max: '99',

@@ -55,6 +55,10 @@ note: the variables starting with _ are treated as translation keys
         "location": "%l",
         "separator": " ",
     },
+    "allowedAge": {
+        "min": 18,
+        "max": 99
+    },
     "ageRanges": [
         { "name": "_all", "value": "all" },
         { "name": "< 25", "value": "<25" },

@@ -198,6 +198,7 @@ export default {
         readyToStart: function readyToStart() {
             let ready = !!this.nick;
 
+            // Check age range before becoming ready
             if (this.age && (this.age < this.allowedAge.min || this.age > this.allowedAge.max)) {
                 ready = false;
             }
