@@ -53,6 +53,8 @@
                         <input-text
                             v-model="age"
                             :label="$t('plugin-asl:age')"
+                            :min="allowedAge.min"
+                            :max="allowedAge.max"
                             class="kiwi-welcome-simple-age"
                             type="number"
                         />
@@ -161,6 +163,9 @@ export default {
         };
     },
     computed: {
+        allowedAge() {
+            return kiwi.state.getSetting('settings.plugin-asl.allowedAge');
+        },
         sexes() {
             return kiwi.state.getSetting('settings.plugin-asl.sexes');
         },
@@ -192,6 +197,11 @@ export default {
         },
         readyToStart: function readyToStart() {
             let ready = !!this.nick;
+
+            // Check age range before becoming ready
+            if (this.age && (this.age < this.allowedAge.min || this.age > this.allowedAge.max)) {
+                ready = false;
+            }
 
             if (!this.connectWithoutChannel && !this.channel) {
                 ready = false;
