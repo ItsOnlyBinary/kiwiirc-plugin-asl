@@ -156,13 +156,25 @@ export default {
             connectWithoutChannel: false,
             showPlainText: false,
             captchaReady: false,
-            age: null,
+            ageInt: null,
             sex: null,
             location: '',
             realname: '',
         };
     },
     computed: {
+        age: {
+            get() {
+                return this.ageInt;
+            },
+            set(val) {
+                if (!val) {
+                    this.ageInt = null;
+                    return;
+                }
+                this.ageInt = parseInt(val, 10) || null;
+            },
+        },
         allowedAge() {
             return kiwi.state.getSetting('settings.plugin-asl.allowedAge');
         },
