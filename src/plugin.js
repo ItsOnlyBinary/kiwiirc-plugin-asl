@@ -20,11 +20,28 @@ kiwi.plugin('asl', (kiwi) => {
 
     // show the user browser if its enabled
     if (kiwi.state.getSetting('settings.plugin-asl.showUserBrowser')) {
-        // add a button to channel headers to open the sidebar component
-        let browserButton = new kiwi.Vue(UserBrowserButton);
-        browserButton.$mount();
-        kiwi.addUi('header_channel', browserButton.$el);
+        let addedButton = false;
+        kiwi.on('message.poststyle', () => {
+            if (addedButton) {
+                return;
+            }
+            addedButton = true;
+
+            // add a button to channel headers to open the sidebar component
+            let BrowserButton = kiwi.Vue.extend(UserBrowserButton);
+            let browserButtonComponent = new BrowserButton();
+            browserButtonComponent.$mount();
+            kiwi.addUi('header_channel', browserButtonComponent.$el);
+        });
     }
+
+    window.test = () => {
+        // add a button to channel headers to open the sidebar component
+        let BrowserButton = kiwi.Vue.extend(UserBrowserButton);
+        let browserButtonComponent = new BrowserButton();
+        browserButtonComponent.$mount();
+        kiwi.addUi('header_channel', browserButtonComponent.$el);
+    };
 
     // handle user joining one of the channels
     kiwi.on('irc.join', (event, net) => {

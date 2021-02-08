@@ -2,6 +2,7 @@
     <div :class="[active ? 'kiwi-header-option--active': '']" class="kiwi-header-option">
         <a @click.prevent="toggleUserBrowser">
             <i :class="icon" class="fa" aria-hidden="true"/>
+            <span>{{ $t('plugin-asl:age') }}</span>
         </a>
     </div>
 </template>
