@@ -127,6 +127,7 @@
 /* global _:true */
 /* global kiwi:true */
 
+import * as config from '../config.js';
 import * as utils from '../libs/utils.js';
 
 let Misc = kiwi.require('helpers/Misc');
@@ -177,14 +178,14 @@ export default {
             },
         },
         allowedAge() {
-            return kiwi.state.getSetting('settings.plugin-asl.allowedAge');
+            return config.getSetting('allowedAge');
         },
         sexes() {
-            return kiwi.state.getSetting('settings.plugin-asl.sexes');
+            return config.getSetting('sexes');
         },
         showRealname() {
-            let showRealname = this.$state.getSetting('settings.plugin-asl.showRealname');
-            let gecosType = this.$state.getSetting('settings.plugin-asl.gecosType');
+            let showRealname = config.getSetting('showRealname');
+            let gecosType = config.getSetting('gecosType');
             return showRealname && gecosType === 1;
         },
         startupOptions() {
@@ -312,7 +313,7 @@ export default {
             parsedGecos = utils.parseGecos(previousNet.gecos);
         }
 
-        let queryKeys = kiwi.state.getSetting('settings.plugin-asl.queryKeys');
+        let queryKeys = config.getSetting('queryKeys');
         if (Misc.queryStringVal(queryKeys.age)) {
             this.age = Misc.queryStringVal(queryKeys.age);
         } else if (typeof options.age !== 'undefined') {
@@ -386,8 +387,8 @@ export default {
             if (!this.age && !this.sex && !this.location) {
                 return '';
             }
-            let gecosId = kiwi.state.getSetting('settings.plugin-asl.gecosType');
-            let gecosType = kiwi.state.pluginASL.gecosTypes[gecosId - 1];
+            let gecosId = config.getSetting('gecosType');
+            let gecosType = this.$state.pluginASL.gecosTypes[gecosId - 1];
             let gecos = gecosType.build;
             let asl = [this.age || '*', this.sex || '*'];
             if (this.location) {

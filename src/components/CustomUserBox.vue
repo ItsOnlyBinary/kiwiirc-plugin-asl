@@ -163,6 +163,7 @@
 /* global kiwi:true */
 
 import * as ipRegex from 'ip-regex';
+import * as config from '../config.js';
 
 let TextFormatting = kiwi.require('helpers/TextFormatting');
 let IrcdDiffs = kiwi.require('helpers/IrcdDiffs');
@@ -183,10 +184,10 @@ export default {
     },
     computed: {
         singleLine() {
-            return kiwi.state.getSetting('settings.plugin-asl.singleLineUserbox');
+            return config.getSetting('singleLineUserbox');
         },
         aslString() {
-            let parts = kiwi.state.getSetting('settings.plugin-asl.singleLineString');
+            let parts = config.getSetting('singleLineString');
             let out = [];
             if (this.user.asl.a) {
                 out.push(parts.age.replace('%a', this.user.asl.a));
