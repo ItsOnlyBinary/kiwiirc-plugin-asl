@@ -48,6 +48,9 @@ module.exports = {
         filename: 'plugin-asl.js',
         contentBase: path.join(__dirname, "dist"),
         compress: true,
-        port: 9000
+        port: 9000,
+        headers: {
+            "Access-Control-Allow-Origin": "*"
+        }
     }
 };

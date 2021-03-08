@@ -1,8 +1,13 @@
 /* global kiwi:true */
 
+const scriptEls = document.getElementsByTagName('script');
+const thisScriptEl = scriptEls[scriptEls.length - 1];
+const scriptPath = thisScriptEl.src;
+const scriptDir = scriptPath.substr(0, scriptPath.lastIndexOf('/') + 1);
+
 export function setDefaults() {
     // Where the webbrowser can find the locale json files
-    setSettingDefault('plugin-asl.localesPath', 'static/plugins/plugin-asl/locales');
+    setSettingDefault('plugin-asl.localesPath', scriptDir + 'plugin-asl/locales');
 
     // Type 1 "[a/s/l?] realname?"
     // Type 2 "a s l?"
