@@ -45,7 +45,7 @@
             </div>
         </div>
 
-        <p class="kiwi-userbox-actions">
+        <div class="kiwi-userbox-actions">
             <a v-if="!isSelf && !buffer.isQuery()" class="kiwi-userbox-action" @click="openQuery">
                 <i class="fa fa-comment-o" aria-hidden="true" />
                 {{ $t('send_a_message') }}
@@ -54,7 +54,23 @@
                 <i class="fa fa-question-circle" aria-hidden="true" />
                 {{ $t('more_information') }}
             </a>
-        </p>
+            <div class="kiwi-userbox-plugin-actions">
+                <div
+                    v-for="plugin in pluginUiButtonElements"
+                    :key="plugin.id"
+                    v-rawElement="{
+                        el: plugin.el,
+                        props: {
+                            kiwi: {
+                                user: user,
+                                userbox: self,
+                            }
+                        }
+                    }"
+                    class="kiwi-userbox-plugin-action"
+                />
+            </div>
+        </div>
 
         <form v-if="!isSelf" class="u-form kiwi-userbox-ignoreuser">
             <label>
@@ -167,6 +183,7 @@ import * as config from '../config.js';
 
 let TextFormatting = kiwi.require('helpers/TextFormatting');
 let IrcdDiffs = kiwi.require('helpers/IrcdDiffs');
+let GlobalApi = kiwi.require('libs/GlobalApi');
 let toHtml = kiwi.require('libs/renderers/Html');
 let parseMessage = kiwi.require('libs/MessageParser');
 let AwayStatusIndicator = kiwi.require('components/AwayStatusIndicator');
@@ -178,8 +195,10 @@ export default {
     props: ['buffer', 'network', 'user'],
     data: function data() {
         return {
+            self: this,
             whoisRequested: false,
             whoisLoading: false,
+            pluginUiButtonElements: GlobalApi.singleton().userboxButtonPlugins,
         };
     },
     computed: {
@@ -503,17 +522,23 @@ export default {
 
 .kiwi-userbox-actions {
     width: 100%;
-    padding: 1em;
+    padding: 0.5em;
     text-align: center;
     margin: 0;
+    user-select: none;
     box-sizing: border-box;
+
+    /* using display flex here to prevent spaces making things uneven */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
 
     .kiwi-userbox-action {
         display: inline-block;
         border: 1px solid;
         padding: 0.5em 1em;
         cursor: pointer;
-        margin: 0 2px;
+        margin: 0.5em;
         transition: all 0.3s;
         border-radius: 3px;
     }
@@ -527,6 +552,12 @@ export default {
             width: auto;
         }
     }
+}
+
+.kiwi-userbox-plugin-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .kiwi-userbox-opactions {
