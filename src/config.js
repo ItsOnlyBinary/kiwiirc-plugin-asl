@@ -1,15 +1,12 @@
 /* global kiwi:true */
 /* global _:true */
 
-const scriptEls = document.getElementsByTagName('script');
-const thisScriptEl = scriptEls[scriptEls.length - 1];
-const scriptPath = thisScriptEl.src;
-const scriptDir = scriptPath.substr(0, scriptPath.lastIndexOf('/') + 1);
-
+const basePath = getBasePath();
 const configBase = 'plugin-asl';
+
 const defaultConfig = {
     // Where the web browser can find the locale json files
-    localesPath: scriptDir + 'plugin-asl/locales',
+    localesPath: basePath + 'plugin-asl/locales',
 
     // Type 1 "[a/s/l?] realname?"
     // Type 2 "a s l?"
@@ -133,4 +130,10 @@ export function getSetting(name) {
 
 export function setSetting(name, value) {
     return kiwi.state.setSetting(['settings', configBase, name].join('.'), value);
+}
+
+function getBasePath() {
+    const scripts = document.getElementsByTagName('script');
+    const scriptPath = scripts[scripts.length - 1].src;
+    return scriptPath.substr(0, scriptPath.lastIndexOf('/') + 1);
 }
