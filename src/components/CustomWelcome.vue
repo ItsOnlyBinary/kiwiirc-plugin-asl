@@ -56,12 +56,13 @@
                             :label="$t('plugin-asl:age')"
                             :min="allowedAge.min"
                             :max="allowedAge.max"
+                            :class="{'kiwi-input-invalid': !isAgeValid}"
                             class="kiwi-welcome-simple-age"
                             type="number"
                         />
                         <div class="kiwi-welcome-simple-sex">
                             <label>{{ $t('plugin-asl:sex') }}</label>
-                            <select v-model="sex">
+                            <select v-model="sex" :class="{'kiwi-input-invalid': !isSexValid}">
                                 <option :value="null" selected disabled>
                                     {{ $t('plugin-asl:select') }}
                                 </option>
@@ -81,11 +82,13 @@
                     <input-text
                         v-model="location"
                         :label="$t('plugin-asl:location')"
+                        :class="{'kiwi-input-invalid': !isLocationValid}"
                     />
                     <input-text
                         v-if="showRealname"
                         v-model="realname"
                         :label="$t('whois_realname')"
+                        :class="{'kiwi-input-invalid': !isRealnameValid}"
                     />
                 </div>
 
@@ -187,6 +190,35 @@ export default {
             let gecosType = config.getSetting('gecosType');
             return showRealname && gecosType === 1;
         },
+        requiredFields() {
+            return this.$state.getSetting('settings.plugin-asl.requiredFields');
+        },
+        isAgeValid() {
+            if (this.requiredFields.includes('age') && !this.ageInt) {
+                return false;
+            }
+            return (
+                !this.ageInt ||
+                (this.ageInt >= this.allowedAge.min && this.ageInt <= this.allowedAge.max)
+            );
+        },
+        isSexValid() {
+            return !(this.requiredFields.includes('sex') && !this.sex);
+        },
+        isLocationValid() {
+            return !(this.requiredFields.includes('location') && !this.location);
+        },
+        isRealnameValid() {
+            return !(this.requiredFields.includes('realname') && !this.realname);
+        },
+        aslReady() {
+            return (
+                this.isAgeValid &&
+                this.isSexValid &&
+                this.isLocationValid &&
+                this.isRealnameValid
+            );
+        },
         startupOptions() {
             return this.$state.settings.startupOptions;
         },
@@ -265,6 +297,10 @@ export default {
             }
 
             if (!this.isNickValid) {
+                ready = false;
+            }
+
+            if (!this.aslReady) {
                 ready = false;
             }
 
@@ -646,6 +682,11 @@ form.kiwi-welcome-simple-form h2 {
 
 .u-form .kiwi-welcome-simple-sex select option {
     background-color: var(--brand-default-bg);
+}
+
+.kiwi-input-invalid.u-input-text input.u-input,
+select.kiwi-input-invalid {
+    border-color: var(--brand-error);
 }
 
 .kiwi-welcome-simple-form .u-submit {

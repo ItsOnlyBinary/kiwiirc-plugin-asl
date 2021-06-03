@@ -73,6 +73,10 @@ const defaultConfig = {
         location: 'location',
         realname: 'realname',
     },
+
+    // Fields required for connect button to become active
+    // age, sex, location, realname
+    requiredFields: [],
 };
 
 export function setDefaults() {

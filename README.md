@@ -42,7 +42,7 @@ note: the variables starting with _ are treated as translation keys
 
 ```
 "plugin-asl" : {
-    "localesPath": "static/plugins/plugin-asl/locales",
+    "localesPath": "/static/plugins/plugin-asl/locales",
     "gecosType": 1,
     "showRealname": false,
     "showUserBrowser": true,
@@ -76,6 +76,11 @@ note: the variables starting with _ are treated as translation keys
         "location": "location",
         "realname": "realname",
     },
+    "requiredFields": [
+        "age",
+        "sex",
+        "location",
+    ],
 },
 ```
 
