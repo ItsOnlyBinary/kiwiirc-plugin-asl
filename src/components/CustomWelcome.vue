@@ -122,7 +122,6 @@
 </template>
 
 <script>
-'kiwi public';
 
 /* global _:true */
 /* global kiwi:true */
