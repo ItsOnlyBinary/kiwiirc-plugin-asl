@@ -344,7 +344,7 @@ export default {
         }
 
         let parsedGecos = null;
-        if (previousNet && previousNet.gecos) {
+        if (config.getSetting('welcomeUsesLocalStorage') && previousNet && previousNet.gecos) {
             parsedGecos = utils.parseGecos(previousNet.gecos);
         }
 
@@ -413,7 +413,7 @@ export default {
             );
         }
 
-        if (options.autoConnect && this.nick && (this.channel || this.connectWithoutChannel)) {
+        if (options.autoConnect && this.readyToStart) {
             this.startUp();
         }
     },

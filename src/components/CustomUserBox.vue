@@ -39,10 +39,10 @@
                     </span>
                 </div>
                 <div v-if="user.asl.l">
-                    <span class="kiwi-userbox-basicinfo-title">
-                        {{ $t('plugin-asl:location') }}
-                    </span>
-                    <span class="kiwi-userbox-basicinfo-data">{{ user.asl.l }}:</span>
+                    <span
+                        class="kiwi-userbox-basicinfo-title"
+                    >{{ $t('plugin-asl:location') }}:</span>
+                    <span class="kiwi-userbox-basicinfo-data">{{ user.asl.l }}</span>
                 </div>
             </div>
             <div v-if="user.aslRealname">

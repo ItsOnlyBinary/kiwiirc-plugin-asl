@@ -77,6 +77,9 @@ const defaultConfig = {
     // Fields required for connect button to become active
     // age, sex, location, realname
     requiredFields: [],
+
+    // Restore last ASL from state persistence
+    welcomeUsesLocalStorage: true,
 };
 
 export function setDefaults() {
