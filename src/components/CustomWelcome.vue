@@ -26,6 +26,7 @@
                     v-focus="!nick || !show_password_box"
                     :label="$t('nick')"
                     type="text"
+                    :class="{'kiwi-welcome-invalid-nick': !isNickValid}"
                 />
 
                 <div v-if="showPass && toggablePass" class="kiwi-welcome-simple-input-container">
@@ -55,12 +56,13 @@
                             :label="$t('plugin-asl:age')"
                             :min="allowedAge.min"
                             :max="allowedAge.max"
+                            :class="{'kiwi-input-invalid': !isAgeValid}"
                             class="kiwi-welcome-simple-age"
                             type="number"
                         />
                         <div class="kiwi-welcome-simple-sex">
                             <label>{{ $t('plugin-asl:sex') }}</label>
-                            <select v-model="sex">
+                            <select v-model="sex" :class="{'kiwi-input-invalid': !isSexValid}">
                                 <option :value="null" selected disabled>
                                     {{ $t('plugin-asl:select') }}
                                 </option>
@@ -80,11 +82,13 @@
                     <input-text
                         v-model="location"
                         :label="$t('plugin-asl:location')"
+                        :class="{'kiwi-input-invalid': !isLocationValid}"
                     />
                     <input-text
                         v-if="showRealname"
                         v-model="realname"
                         :label="$t('whois_realname')"
+                        :class="{'kiwi-input-invalid': !isRealnameValid}"
                     />
                 </div>
 
@@ -121,11 +125,11 @@
 </template>
 
 <script>
-'kiwi public';
 
 /* global _:true */
 /* global kiwi:true */
 
+import * as config from '../config.js';
 import * as utils from '../libs/utils.js';
 
 let Misc = kiwi.require('helpers/Misc');
@@ -176,15 +180,44 @@ export default {
             },
         },
         allowedAge() {
-            return kiwi.state.getSetting('settings.plugin-asl.allowedAge');
+            return config.getSetting('allowedAge');
         },
         sexes() {
-            return kiwi.state.getSetting('settings.plugin-asl.sexes');
+            return config.getSetting('sexes');
         },
         showRealname() {
-            let showRealname = this.$state.getSetting('settings.plugin-asl.showRealname');
-            let gecosType = this.$state.getSetting('settings.plugin-asl.gecosType');
+            let showRealname = config.getSetting('showRealname');
+            let gecosType = config.getSetting('gecosType');
             return showRealname && gecosType === 1;
+        },
+        requiredFields() {
+            return this.$state.getSetting('settings.plugin-asl.requiredFields');
+        },
+        isAgeValid() {
+            if (this.requiredFields.includes('age') && !this.ageInt) {
+                return false;
+            }
+            return (
+                !this.ageInt ||
+                (this.ageInt >= this.allowedAge.min && this.ageInt <= this.allowedAge.max)
+            );
+        },
+        isSexValid() {
+            return !(this.requiredFields.includes('sex') && !this.sex);
+        },
+        isLocationValid() {
+            return !(this.requiredFields.includes('location') && !this.location);
+        },
+        isRealnameValid() {
+            return !(this.requiredFields.includes('realname') && !this.realname);
+        },
+        aslReady() {
+            return (
+                this.isAgeValid &&
+                this.isSexValid &&
+                this.isLocationValid &&
+                this.isRealnameValid
+            );
         },
         startupOptions() {
             return this.$state.settings.startupOptions;
@@ -207,33 +240,7 @@ export default {
                 greeting :
                 this.$t('start_button');
         },
-        readyToStart: function readyToStart() {
-            let ready = !!this.nick;
-
-            // Check age range before becoming ready
-            if (this.age && (this.age < this.allowedAge.min || this.age > this.allowedAge.max)) {
-                ready = false;
-            }
-
-            if (!this.connectWithoutChannel && !this.channel) {
-                ready = false;
-            }
-
-            // Make sure the channel name starts with a common channel prefix
-            if (!this.connectWithoutChannel) {
-                let bufferObjs = Misc.extractBuffers(this.channel);
-                bufferObjs.forEach((bufferObj) => {
-                    if ('#&'.indexOf(bufferObj.name[0]) === -1) {
-                        ready = false;
-                    }
-                });
-            }
-
-            // If toggling the password is is disabled, assume it is required
-            if (!this.toggablePass && !this.password) {
-                ready = false;
-            }
-
+        isNickValid() {
             let nickPatternStr = this.$state.setting('startupOptions.nick_format');
             let nickPattern = '';
             if (!nickPatternStr) {
@@ -265,11 +272,47 @@ export default {
                 }
             }
 
-            if (!this.nick.match(nickPattern)) {
+            return this.nick.match(nickPattern);
+        },
+        readyToStart: function readyToStart() {
+            let ready = !!this.nick;
+
+            if (!this.connectWithoutChannel && !this.channel) {
+                ready = false;
+            }
+
+            // Make sure the channel name starts with a common channel prefix
+            if (!this.connectWithoutChannel) {
+                let bufferObjs = Misc.extractBuffers(this.channel);
+                bufferObjs.forEach((bufferObj) => {
+                    if ('#&'.indexOf(bufferObj.name[0]) === -1) {
+                        ready = false;
+                    }
+                });
+            }
+
+            // If toggling the password is is disabled, assume it is required
+            if (!this.toggablePass && !this.password) {
+                ready = false;
+            }
+
+            if (!this.isNickValid) {
+                ready = false;
+            }
+
+            if (!this.aslReady) {
                 ready = false;
             }
 
             return ready;
+        },
+    },
+    watch: {
+        show_password_box(newVal) {
+            if (newVal === false) {
+                // clear the password when show password is unchecked
+                this.password = '';
+            }
         },
     },
     created: function created() {
@@ -282,20 +325,30 @@ export default {
             previousNet = this.$state.getNetworkFromAddress(connectOptions.hostname.trim());
         }
 
-        if (Misc.queryStringVal('nick')) {
-            this.nick = Misc.queryStringVal('nick');
-        } else if (previousNet && previousNet.connection.nick) {
+        if (previousNet && previousNet.connection.nick) {
             this.nick = previousNet.connection.nick;
+        } else if (Misc.queryStringVal('nick')) {
+            this.nick = Misc.queryStringVal('nick');
         } else {
             this.nick = options.nick;
         }
+        this.nick = this.processNickRandomNumber(this.nick || '');
+
+        if (options.password) {
+            this.password = options.password;
+        } else if (previousNet && previousNet.password) {
+            this.password = previousNet.password;
+            this.show_password_box = true;
+        } else {
+            this.password = '';
+        }
 
         let parsedGecos = null;
-        if (previousNet && previousNet.gecos) {
+        if (config.getSetting('welcomeUsesLocalStorage') && previousNet && previousNet.gecos) {
             parsedGecos = utils.parseGecos(previousNet.gecos);
         }
 
-        let queryKeys = kiwi.state.getSetting('settings.plugin-asl.queryKeys');
+        let queryKeys = config.getSetting('queryKeys');
         if (Misc.queryStringVal(queryKeys.age)) {
             this.age = Misc.queryStringVal(queryKeys.age);
         } else if (typeof options.age !== 'undefined') {
@@ -328,8 +381,6 @@ export default {
             this.realname = parsedGecos.realname;
         }
 
-        this.nick = this.processNickRandomNumber(this.nick || '');
-        this.password = options.password || '';
         this.channel = decodeURIComponent(window.location.hash) || options.channel || '';
         this.showChannel = typeof options.showChannel === 'boolean' ?
             options.showChannel :
@@ -362,7 +413,7 @@ export default {
             );
         }
 
-        if (options.autoConnect && this.nick && (this.channel || this.connectWithoutChannel)) {
+        if (options.autoConnect && this.readyToStart) {
             this.startUp();
         }
     },
@@ -371,8 +422,8 @@ export default {
             if (!this.age && !this.sex && !this.location) {
                 return '';
             }
-            let gecosId = kiwi.state.getSetting('settings.plugin-asl.gecosType');
-            let gecosType = kiwi.state.pluginASL.gecosTypes[gecosId - 1];
+            let gecosId = config.getSetting('gecosType');
+            let gecosType = this.$state.pluginASL.gecosTypes[gecosId - 1];
             let gecos = gecosType.build;
             let asl = [this.age || '*', this.sex || '*'];
             if (this.location) {
@@ -631,6 +682,11 @@ form.kiwi-welcome-simple-form h2 {
 
 .u-form .kiwi-welcome-simple-sex select option {
     background-color: var(--brand-default-bg);
+}
+
+.kiwi-input-invalid.u-input-text input.u-input,
+select.kiwi-input-invalid {
+    border-color: var(--brand-error);
 }
 
 .kiwi-welcome-simple-form .u-submit {

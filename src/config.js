@@ -1,44 +1,48 @@
 /* global kiwi:true */
+/* global _:true */
 
-export function setDefaults() {
-    // Where the webbrowser can find the locale json files
-    setSettingDefault('plugin-asl.localesPath', 'static/plugins/plugin-asl/locales');
+const basePath = getBasePath();
+const configBase = 'plugin-asl';
+
+const defaultConfig = {
+    // Where the web browser can find the locale json files
+    localesPath: basePath + 'plugin-asl/locales',
 
     // Type 1 "[a/s/l?] realname?"
     // Type 2 "a s l?"
-    setSettingDefault('plugin-asl.gecosType', 1);
+    gecosType: 1,
 
     // If should show realname input box on welcome screen
-    setSettingDefault('plugin-asl.showRealname', false);
+    showRealname: false,
 
-    // Enable Userbrowser
-    setSettingDefault('plugin-asl.showUserBrowser', true);
+    // Enable User Browser
+    showUserBrowser: true,
 
     // What icon to use for User Browser
-    setSettingDefault('plugin-asl.userBrowserIcon', 'fa-heart');
+    userBrowserIcon: 'fa-heart',
 
     // What colour to use if user did not provide sex
     // 'default' is css default colour
     // '' for random
-    setSettingDefault('plugin-asl.fallbackColour', 'default');
+    fallbackColour: 'default',
 
     // If should show asl as single line in UserBox
-    setSettingDefault('plugin-asl.singleLineUserbox', false);
+    singleLineUserbox: false,
 
     // Single line string builder
     // age/sex/location (if they exist) are joined by the separator
-    setSettingDefault('plugin-asl.singleLineString', {
+    singleLineString: {
         age: '%a years',
         sex: '%s',
         location: '%l',
         separator: ' ',
-    });
+    },
 
     // Accepted age range for the Connect button to be enabled
-    setSettingDefault('plugin-asl.allowedAge', {
+    allowedAge: {
         min: '18',
         max: '99',
-    });
+    },
 
     // Age ranges to show on UserBrowser select
     // values can be:
@@ -46,62 +50,97 @@ export function setDefaults() {
     //   <50    - less than integer
     //   >50    - greater than integer
     //   25-50  - an inclusive range
-    setSettingDefault('plugin-asl.ageRanges', [
+    ageRanges: [
         { name: '_all', value: 'all' },
         { name: '< 25', value: '<25' },
         { name: '25 - 45', value: '25-46' },
         { name: '> 45', value: '>45' },
-    ]);
+    ],
 
     // Sex selection and parsing
     // chars is for matching against gecos (can contain multiple)
     // the first char will be used in gecos creation
-    setSettingDefault('plugin-asl.sexes', {
+    sexes: {
         _male: { chars: 'M', colour: '#00F' },
         _female: { chars: 'F', colour: '#F0F' },
         _other: { chars: 'O', colour: '#0F0' },
-    });
+    },
 
     // Keys used to get asl from query string
-    setSettingDefault('plugin-asl.queryKeys', {
+    queryKeys: {
         age: 'age',
         sex: 'sex',
         location: 'location',
         realname: 'realname',
-    });
+    },
+
+    // Fields required for connect button to become active
+    // age, sex, location, realname
+    requiredFields: [],
+
+    // Restore last ASL from state persistence
+    welcomeUsesLocalStorage: true,
+};
+
+export function setDefaults() {
+    let walkConfig = (obj, _target) => {
+        _.each(obj, (val, key) => {
+            let target = [..._target, key];
+            let targetName = target.join('.');
+            if (typeof val === 'object' && !_.isArray(val)) {
+                walkConfig(val, target);
+            } else if (typeof getSetting(targetName) === 'undefined') {
+                setSetting(targetName, val);
+            }
+        });
+    };
+    walkConfig(defaultConfig, []);
 
     // Set internal defaults
-    kiwi.state.pluginASL = {};
+    const pluginASL = kiwi.state.pluginASL = Object.create(null);
 
-    let ageRanges = kiwi.state.getSetting('settings.plugin-asl.ageRanges');
-    kiwi.state.pluginASL.selectedAgeRange = ageRanges[0].value;
+    const ageRanges = getSetting('ageRanges');
+    pluginASL.selectedAgeRange = ageRanges[0].value;
 
-    let sexes = kiwi.state.getSetting('settings.plugin-asl.sexes');
-    kiwi.state.pluginASL.selectedSexes = {};
+    const sexes = getSetting('sexes');
+    const sexesKeys = Object.keys(sexes);
+    pluginASL.selectedSexes = {};
     let sexesRegex = '';
-    let sexesKeys = Object.keys(sexes);
     for (let i = 0; i < sexesKeys.length; i++) {
         let sex = sexesKeys[i];
-        kiwi.state.pluginASL.selectedSexes[sex] = true;
+        pluginASL.selectedSexes[sex] = true;
         sexesRegex += sexes[sex].chars;
     }
-    kiwi.state.pluginASL.gecosTypes = [];
-    kiwi.state.pluginASL.gecosTypes.push({
+
+    pluginASL.gecosTypes = [];
+    pluginASL.gecosTypes.push({
         regex: new RegExp('\\[(\\d+|\\*)\\/([' + sexesRegex + '*])(\\/(.*?|\\*))?\\](\\s*(.+))?'),
         build: '[%asl] %r',
         separator: '/',
     });
-    kiwi.state.pluginASL.gecosTypes.push({
+    pluginASL.gecosTypes.push({
         regex: new RegExp('(\\d+)\\s+([' + sexesRegex + '])(\\s+(.*))?'),
         build: '%asl',
         separator: ' ',
     });
 
-    kiwi.state.pluginASL.userFilter = '';
+    pluginASL.userFilter = '';
 }
 
-function setSettingDefault(name, value) {
-    if (kiwi.state.getSetting('settings.' + name) === undefined) {
-        kiwi.state.setSetting('settings.' + name, value);
-    }
+export function setting(name) {
+    return kiwi.state.setting([configBase, name].join('.'));
+}
+
+export function getSetting(name) {
+    return kiwi.state.getSetting(['settings', configBase, name].join('.'));
+}
+
+export function setSetting(name, value) {
+    return kiwi.state.setSetting(['settings', configBase, name].join('.'), value);
+}
+
+function getBasePath() {
+    const scripts = document.getElementsByTagName('script');
+    const scriptPath = scripts[scripts.length - 1].src;
+    return scriptPath.substr(0, scriptPath.lastIndexOf('/') + 1);
 }
