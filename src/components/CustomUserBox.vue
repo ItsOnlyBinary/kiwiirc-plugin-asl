@@ -73,7 +73,6 @@
                             }
                         }
                     }"
-                    class="kiwi-userbox-action"
                 />
             </div>
         </div>
@@ -147,6 +146,7 @@
                 </label>
                 <label v-if="isUserOnBuffer">
                     <button
+                        type="button"
                         class="u-button u-button-secondary
                                kiwi-userbox-opaction-kick kiwi-userbox-opaction"
                         @click="kickUser"
@@ -157,6 +157,7 @@
                 </label>
                 <label>
                     <button
+                        type="button"
                         class="u-button u-button-secondary
                                kiwi-userbox-opaction-ban kiwi-userbox-opaction"
                         @click="banUser"
@@ -167,6 +168,7 @@
                 </label>
                 <label v-if="isUserOnBuffer">
                     <button
+                        type="button"
                         class="u-button u-button-secondary
                                kiwi-userbox-opaction-kickban kiwi-userbox-opaction"
                         @click="kickbanUser"
@@ -570,7 +572,6 @@ export default {
     justify-content: center;
 
     .kiwi-userbox-action {
-        display: inline-block;
         border: 1px solid;
         padding: 0.5em 1em;
         cursor: pointer;
