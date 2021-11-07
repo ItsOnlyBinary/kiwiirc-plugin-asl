@@ -244,16 +244,6 @@ export default {
                 v: 'Voice',
             };
 
-            if (!IrcdDiffs.isAChannelModeAdmin(this.network)) {
-                delete knownPrefix.a;
-            }
-            if (!IrcdDiffs.isQChannelModeOwner(this.network)) {
-                delete knownPrefix.q;
-            }
-            if (!IrcdDiffs.supportsHalfOp(this.network)) {
-                delete knownPrefix.h;
-            }
-
             prefixes.forEach((prefix) => {
                 let mode = prefix.mode;
                 if (knownPrefix[mode]) {
