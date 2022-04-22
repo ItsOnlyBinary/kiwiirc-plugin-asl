@@ -6,7 +6,7 @@ const configBase = 'plugin-asl';
 
 const defaultConfig = {
     // Where the web browser can find the locale json files
-    localesPath: basePath + 'plugin-asl/locales',
+    localesPath: basePath + 'plugin-asl/locales/{{lng}}.json',
 
     // Type 1 "[a/s/l?] realname?"
     // Type 2 "a s l?"
@@ -83,19 +83,8 @@ const defaultConfig = {
     welcomeUsesLocalStorage: true,
 };
 
-export function setDefaults() {
-    let walkConfig = (obj, _target) => {
-        _.each(obj, (val, key) => {
-            let target = [..._target, key];
-            let targetName = target.join('.');
-            if (typeof val === 'object' && !_.isArray(val)) {
-                walkConfig(val, target);
-            } else if (typeof getSetting(targetName) === 'undefined') {
-                setSetting(targetName, val);
-            }
-        });
-    };
-    walkConfig(defaultConfig, []);
+export function setDefaults(kiwi) {
+    kiwi.setConfigDefaults(configBase, defaultConfig);
 
     // Set internal defaults
     const pluginASL = kiwi.state.pluginASL = Object.create(null);
