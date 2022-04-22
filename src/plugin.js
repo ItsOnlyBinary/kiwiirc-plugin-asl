@@ -21,9 +21,7 @@ kiwi.plugin('asl', (kiwi) => {
     // show the user browser if its enabled
     if (kiwi.state.getSetting('settings.plugin-asl.showUserBrowser')) {
         // add a button to channel headers to open the sidebar component
-        let browserButton = new kiwi.Vue(UserBrowserButton);
-        browserButton.$mount();
-        kiwi.addUi('header_channel', browserButton.$el);
+        kiwi.addUi('header_channel', UserBrowserButton);
     }
 
     // handle user joining one of the channels

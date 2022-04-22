@@ -41,9 +41,36 @@
         <div class="plugin-asl-userbrowser-users">
             <table class="plugin-asl-userbrowser-users-table">
                 <tr>
-                    <th style="width: 35%; text-align: left;">{{ $t('nick') }}</th>
-                    <th style="width: 15%;">{{ $t('plugin-asl:age') }}</th>
-                    <th style="width: 50%; text-align: left;">{{ $t('plugin-asl:location') }}</th>
+                    <th @click="toggleSort('nick')" style="width: 35%; text-align: left;">
+                        <div>
+                            <i
+                                v-if="sortColumn === 'nick'"
+                                aria-hidden="true"
+                                :class="[ sortDescending ? 'fa fa-sort-desc' : 'fa fa-sort-asc']"
+                            />
+                            <div>{{ $t('nick') }}</div>
+                        </div>
+                    </th>
+                    <th @click="toggleSort('age')" style="width: 15%;">
+                        <div>
+                            <i
+                                v-if="sortColumn === 'age'"
+                                aria-hidden="true"
+                                :class="[ sortDescending ? 'fa fa-sort-desc' : 'fa fa-sort-asc']"
+                            />
+                            <div>{{ $t('plugin-asl:age') }}</div>
+                        </div>
+                    </th>
+                    <th @click="toggleSort('location')" style="width: 50%; text-align: left;">
+                        <div>
+                            <i
+                                v-if="sortColumn === 'location'"
+                                aria-hidden="true"
+                                :class="[ sortDescending ? 'fa fa-sort-desc' : 'fa fa-sort-asc']"
+                            />
+                            <div>{{ $t('plugin-asl:location') }}</div>
+                        </div>
+                    </th>
                 </tr>
                 <tr v-for="user in filteredUsers" :key="'users-'+user.nick">
                     <td
@@ -74,9 +101,14 @@ export default {
             ageRanges: [],
             age: '',
             filter: '',
+            sortColumn: '',
+            sortDescending: true,
         };
     },
     computed: {
+        sortedUsers() {
+
+        },
         filteredUsers() {
             let bufferUsers = this.buffer.users;
             let filter = this.filter.toLowerCase();
@@ -140,6 +172,17 @@ export default {
             this.$state.$emit('userbox.show', user, {
                 buffer: this.buffer,
             });
+        },
+        toggleSort(column) {
+            if (this.sortColumn !== column) {
+                this.sortColumn = column;
+                this.sortDescending = true;
+            } else if (this.sortDescending) {
+                this.sortDescending = false;
+            } else {
+                this.sortColumn = '';
+                this.sortDescending = true;
+            }
         },
         toggleSex(event, name) {
             this.selectedSexes[name] = event.target.checked;
@@ -209,6 +252,16 @@ export default {
 .plugin-asl-userbrowser-users-table td,
 .plugin-asl-userbrowser-users-table th {
     padding: 0 4px;
+}
+
+.plugin-asl-userbrowser-users-table th > i {
+    border: 1px solid red;
+    float: left;
+    line-height: 1.6em;
+}
+
+.plugin-asl-userbrowser-users-table th > div > div {
+    padding-left: 10px;
 }
 
 .plugin-asl-userbrowser-users-nick {
