@@ -68,14 +68,14 @@
                                     {{ $t('plugin-asl:select') }}
                                 </option>
                                 <option
-                                    v-for="(value, name) in sexes"
-                                    :key="'sexes-'+name"
-                                    :value="value.chars[0]"
-                                    :style="{ 'color': sexes[name].colour }"
+                                    v-for="sexObj of sexes"
+                                    :key="'sexes-'+sexObj.name"
+                                    :value="sexObj.chars[0]"
+                                    :style="{ 'color': sexObj.colour }"
                                 >{{
-                                    name[0] === '_' ?
-                                        $t('plugin-asl:' + name.substr(1)) :
-                                        name
+                                    sexObj.name[0] === '_' ?
+                                        $t('plugin-asl:' + sexObj.name.substr(1)) :
+                                        sexObj.name
                                 }}</option>
                             </select>
                         </div>

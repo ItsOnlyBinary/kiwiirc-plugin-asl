@@ -65,11 +65,11 @@ note: the variables starting with _ are treated as translation keys
         { "name": "25 - 45", "value": "25-46" },
         { "name": "> 45", "value": ">45" },
     ],
-    "sexes": {
-        "_male": { "chars": "M", "colour": "#00F" },
-        "_female": { "chars": "F", "colour": "#F0F" },
-        "_other": { "chars": "O", "colour": "#0F0" },
-    },
+    "sexes": [
+        { "name": "_male", "chars": "M", "colour": "#00F" },
+        { "name": "_female", "chars": "F", "colour": "#F0F" },
+        { "name": "_other", "chars": "O", "colour": "#F00" },
+    ],
     "queryKeys": {
         "age": "age",
         "sex": "sex",

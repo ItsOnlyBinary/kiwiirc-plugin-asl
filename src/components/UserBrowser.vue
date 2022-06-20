@@ -2,18 +2,22 @@
     <div class="plugin-asl-userbrowser-container">
         <div class="u-form">
             <div
-                v-for="(value, name) in sexes"
-                :key="'sexes-'+name"
+                v-for="sexObj of sexes"
+                :key="'sexes-'+sexObj.name"
                 class="plugin-asl-userbrowser-sexes"
             >
                 <input
-                    :id="'asl-'+name"
-                    :checked="selectedSexes[name]"
+                    :id="'asl-'+sexObj.name"
+                    :checked="selectedSexes[sexObj.name]"
                     type="checkbox"
-                    @change="toggleSex($event, name)"
+                    @change="toggleSex($event, sexObj.name)"
                 >
-                <label :for="'asl-'+name" :style="{ 'color': sexes[name].colour }">
-                    {{ name[0] === '_' ? $t('plugin-asl:' + name.substr(1)) : name }}
+                <label :for="'asl-'+sexObj.name" :style="{ 'color': sexObj.colour }">
+                    {{
+                        sexObj.name[0] === '_' ?
+                            $t('plugin-asl:' + sexObj.name.substr(1)) :
+                            sexObj.name
+                    }}
                 </label>
             </div>
             <select
