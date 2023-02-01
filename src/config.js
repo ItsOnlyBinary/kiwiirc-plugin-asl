@@ -58,13 +58,14 @@ const defaultConfig = {
     ],
 
     // Sex selection and parsing
+    // names starting with underscore (_) will be treated as translation strings
     // chars is for matching against gecos (can contain multiple)
     // the first char will be used in gecos creation
-    sexes: {
-        _male: { chars: 'M', colour: '#00F' },
-        _female: { chars: 'F', colour: '#F0F' },
-        _other: { chars: 'O', colour: '#0F0' },
-    },
+    sexes: [
+        { name: '_male', chars: 'M', colour: '#00F' },
+        { name: '_female', chars: 'F', colour: '#F0F' },
+        { name: '_other', chars: 'O', colour: '#0F0' },
+    ],
 
     // Keys used to get asl from query string
     queryKeys: {
@@ -103,13 +104,20 @@ export function setDefaults() {
     pluginASL.selectedAgeRange = ageRanges[0].value;
 
     const sexes = getSetting('sexes');
-    const sexesKeys = Object.keys(sexes);
+    if (typeof sexes !== 'object' || !_.isArray(sexes)) {
+        // eslint-disable-next-line no-console
+        console.error('sexes config option has changed to an array please update your config');
+        // eslint-disable-next-line no-console
+        console.error('see here: https://github.com/ItsOnlyBinary/kiwiirc-plugin-asl#configuration');
+        kiwi.state.setSetting('settings.startupScreen', 'welcome');
+        return;
+    }
     pluginASL.selectedSexes = {};
     let sexesRegex = '';
-    for (let i = 0; i < sexesKeys.length; i++) {
-        let sex = sexesKeys[i];
-        pluginASL.selectedSexes[sex] = true;
-        sexesRegex += sexes[sex].chars;
+    for (let i = 0; i < sexes.length; i++) {
+        let sex = sexes[i];
+        sexesRegex += sex.chars;
+        pluginASL.selectedSexes[sex.name] = true;
     }
 
     pluginASL.gecosTypes = [];

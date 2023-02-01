@@ -22,25 +22,39 @@ export function parseGecos(gecos) {
 }
 
 export function getColour(asl) {
-    let sex = asl && asl.s ? asl.s : '';
+    let aslSex = asl && asl.s ? asl.s : '';
     let sexes = kiwi.state.getSetting('settings.plugin-asl.sexes');
     let fallbackColour = kiwi.state.getSetting('settings.plugin-asl.fallbackColour');
-    return sexes[sex] ? sexes[sex].colour : fallbackColour;
+    for (let i = 0; i < sexes.length; i++) {
+        let sex = sexes[i];
+        if (sex.name === aslSex) {
+            return sex.colour;
+        }
+    }
+
+    return fallbackColour;
 }
 
-export function getSexChar(sex) {
+export function getSexChar(sexName) {
     let sexes = kiwi.state.getSetting('settings.plugin-asl.sexes');
-    return sexes[sex] ? sexes[sex].chars[0] : null;
+    for (let i = 0; i < sexes.length; i++) {
+        let sex = sexes[i];
+        if (sex.name === sexName) {
+            return sex.chars[0];
+        }
+    }
+
+    return null;
 }
 
 function getSex(sexChar) {
     let sexes = kiwi.state.getSetting('settings.plugin-asl.sexes');
-    let sexesKeys = Object.keys(sexes);
-    for (let i = 0; i < sexesKeys.length; i++) {
-        let sex = sexesKeys[i];
-        if (sexes[sex].chars.indexOf(sexChar) !== -1) {
-            return sex;
+    for (let i = 0; i < sexes.length; i++) {
+        let sex = sexes[i];
+        if (sex.chars.indexOf(sexChar) !== -1) {
+            return sex.name;
         }
     }
+
     return null;
 }
