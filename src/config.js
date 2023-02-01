@@ -22,7 +22,7 @@ const defaultConfig = {
     userBrowserIcon: 'fa-heart',
 
     // Should the userbrowser show users from all channels
-    userBrowserGlobal: true,
+    userBrowserGlobal: false,
 
     // What colour to use if user did not provide sex
     // 'default' is css default colour
