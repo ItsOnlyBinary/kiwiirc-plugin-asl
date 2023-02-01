@@ -120,6 +120,11 @@ export function setDefaults(kiwi) {
         build: '%asl',
         separator: ' ',
     });
+    pluginASL.gecosTypes.push({
+        regex: new RegExp('(\\d+|\\*)\\s?\\/\\s?([' + sexesRegex + '*])(\\s?\\/\\s?(.*?|\\*))?'),
+        build: '%asl',
+        separator: '/',
+    });
 
     pluginASL.userFilter = '';
 }
