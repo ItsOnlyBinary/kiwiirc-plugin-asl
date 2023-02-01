@@ -82,7 +82,19 @@ export default {
     },
     computed: {
         filteredUsers() {
-            let bufferUsers = this.buffer.users;
+            let showGlobal = config.setting('userBrowserGlobal');
+            let bufferUsers = showGlobal ?
+                Object.values(this.network.users) :
+                this.buffer.users;
+
+            if (showGlobal) {
+                this.network.buffers.forEach((buffer) => {
+                    // Noop so it updates if any buffer.users change
+                    // eslint-disable-next-line no-unused-expressions
+                    buffer.users;
+                });
+            }
+
             let filter = this.filter.toLowerCase();
             return _.filter(bufferUsers, (user) => {
                 if (!user.asl) {
