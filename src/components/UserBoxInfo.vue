@@ -13,16 +13,14 @@
                 <span class="kiwi-userbox-basicinfo-title">{{ $t('plugin-asl:sex') }}:</span>
                 <span class="kiwi-userbox-basicinfo-data">
                     {{
-                        user.asl.s[0] === '_' ?
-                            $t('plugin-asl:' + user.asl.s.substr(1)) :
-                            user.asl.s
+                        user.asl.s[0] === '_'
+                            ? $t('plugin-asl:' + user.asl.s.substr(1))
+                            : user.asl.s
                     }}
                 </span>
             </div>
             <div v-if="user.asl.l">
-                <span
-                    class="kiwi-userbox-basicinfo-title"
-                >{{ $t('plugin-asl:location') }}:</span>
+                <span class="kiwi-userbox-basicinfo-title">{{ $t('plugin-asl:location') }}:</span>
                 <span class="kiwi-userbox-basicinfo-data">{{ user.asl.l }}</span>
             </div>
         </div>
@@ -34,13 +32,13 @@
 </template>
 
 <script>
-
 /* global kiwi:true */
 
 import * as config from '../config.js';
 
 let toHtml = kiwi.require('libs/renderers/Html');
 let parseMessage = kiwi.require('libs/MessageParser');
+let TextFormatting = kiwi.require('helpers/TextFormatting');
 
 export default {
     props: ['user'],
@@ -55,9 +53,10 @@ export default {
                 out.push(parts.age.replace('%a', this.user.asl.a));
             }
             if (this.user.asl.s) {
-                let sex = this.user.asl.s[0] === '_' ?
-                    TextFormatting.t('plugin-asl:' + this.user.asl.s.substr(1)) :
-                    this.user.asl.s;
+                let sex =
+                    this.user.asl.s[0] === '_'
+                        ? TextFormatting.t('plugin-asl:' + this.user.asl.s.substr(1))
+                        : this.user.asl.s;
                 out.push(parts.sex.replace('%s', sex));
             }
             if (this.user.asl.l) {
@@ -71,5 +70,5 @@ export default {
             return content;
         },
     },
-}
+};
 </script>

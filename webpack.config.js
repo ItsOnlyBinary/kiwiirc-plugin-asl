@@ -17,7 +17,7 @@ module.exports = {
             },
             {
                 test: /\.js$/,
-                use: [{loader: 'exports-loader'}, {loader: 'babel-loader'}],
+                use: [{loader: 'babel-loader'}],
                 include: [
                     path.join(__dirname, 'src'),
                     path.join(__dirname, './node_modules/ip-regex/'),
@@ -35,18 +35,22 @@ module.exports = {
     },
     plugins: [
         new VueLoaderPlugin(),
-        new CopyWebpackPlugin([
-            {
-                from: path.resolve(__dirname, './res/locales'),
-                to: 'plugin-asl/locales/',
-                ignore: ['.*']
-            }
-        ])
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: path.resolve(__dirname, './res/locales'),
+                    to: 'plugin-asl/locales/',
+                    toType: 'dir',
+                    globOptions: {
+                        ignore: ['.*']
+                    },
+                }
+            ],
+        })
     ],
-    devtool: makeSourceMap ? 'source-map' : '',
+    devtool: makeSourceMap ? 'source-map' : undefined,
     devServer: {
-        filename: 'plugin-asl.js',
-        contentBase: path.join(__dirname, "dist"),
+        static: path.join(__dirname, "dist"),
         compress: true,
         port: 9000,
         headers: {
