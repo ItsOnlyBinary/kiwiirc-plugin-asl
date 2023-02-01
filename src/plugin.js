@@ -1,5 +1,5 @@
 import CustomWelcome from './components/CustomWelcome.vue';
-import CustomUserBox from './components/CustomUserBox.vue';
+import UserBoxInfo from './components/UserBoxInfo.vue';
 import UserBrowserButton from './components/UserBrowserButton.vue';
 import * as config from './config.js';
 import * as utils from './libs/utils.js';
@@ -18,9 +18,9 @@ kiwi.plugin('asl', (kiwi, log) => {
         log.error('localesPath is missing {{lng}}, please update your config.json');
     }
 
-    // add the custom welcome screen and replace userbox
+    // add the custom welcome screen and userbox info
     kiwi.addStartup('plugin-asl', CustomWelcome);
-    kiwi.replaceModule('components/UserBox', CustomUserBox);
+    kiwi.addUi('userbox_info', UserBoxInfo);
 
     // show the user browser if its enabled
     if (kiwi.state.getSetting('settings.plugin-asl.showUserBrowser')) {
