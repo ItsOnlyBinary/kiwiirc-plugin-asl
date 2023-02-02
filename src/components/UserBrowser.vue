@@ -107,12 +107,8 @@ export default {
                 }
 
                 // Filter by sex
-                let sexesKeys = Object.keys(this.sexes);
-                for (let i = 0; i < sexesKeys.length; i++) {
-                    let sex = sexesKeys[i];
-                    if (user.asl.s === sex && !this.selectedSexes[sex]) {
-                        return false;
-                    }
+                if (!this.selectedSexes[user.asl.s]) {
+                    return false;
                 }
 
                 // Filter by age
