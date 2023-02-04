@@ -337,10 +337,15 @@ export default {
         }
         this.nick = this.processNickRandomNumber(this.nick || '');
 
-        if (options.password || Misc.queryStringVal('nick')) {
+        if (options.password) {
             // Don't use previousNet.password if we did not use previousNet.nick
-            this.password = options.password || '';
-        } else if (previousNet && previousNet.connection.nick && previousNet.password) {
+            this.password = options.password;
+        } else if (
+            previousNet &&
+            previousNet.password && (
+                !Misc.queryStringVal('nick') || previousNet.connection.nick === Misc.queryStringVal('nick')
+            )
+        ) {
             this.password = previousNet.password;
             this.show_password_box = true;
         } else {
