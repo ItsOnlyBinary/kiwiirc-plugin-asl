@@ -20,7 +20,6 @@ module.exports = {
                 use: [{loader: 'babel-loader'}],
                 include: [
                     path.join(__dirname, 'src'),
-                    path.join(__dirname, './node_modules/ip-regex/'),
                 ]
             },
             {
