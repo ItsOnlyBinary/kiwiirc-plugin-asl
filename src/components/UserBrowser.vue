@@ -1,60 +1,82 @@
 <template>
     <div class="plugin-asl-userbrowser-container">
-        <div class="u-form">
+        <div class="plugin-asl-userbrowser-options u-form">
             <div
                 v-for="sexObj of sexes"
-                :key="'sexes-'+sexObj.name"
-                class="plugin-asl-userbrowser-sexes"
+                :key="'sexes-' + sexObj.name"
+                class="plugin-asl-userbrowser-option"
             >
                 <input
-                    :id="'asl-'+sexObj.name"
+                    :id="'asl-' + sexObj.name"
                     :checked="selectedSexes[sexObj.name]"
                     type="checkbox"
                     @change="toggleSex($event, sexObj.name)"
                 >
-                <label :for="'asl-'+sexObj.name" :style="{ 'color': sexObj.colour }">
+                <label :for="'asl-' + sexObj.name" :style="{ color: sexObj.colour }">
                     {{
-                        sexObj.name[0] === '_' ?
-                            $t('plugin-asl:' + sexObj.name.substr(1)) :
-                            sexObj.name
+                        sexObj.name[0] === '_'
+                            ? $t('plugin-asl:' + sexObj.name.substr(1))
+                            : sexObj.name
                     }}
                 </label>
             </div>
-            <select
-                v-model="age"
-                class="plugin-asl-userbrowser-ages"
-                @change="updateSelectedAgeRange()"
-            >
-                <option
-                    v-for="ageRange in ageRanges"
-                    :key="'agerange-'+ageRange.value"
-                    :value="ageRange.value"
+        </div>
+        <div class="plugin-asl-userbrowser-options u-form">
+            <div class="plugin-asl-userbrowser-option">
+                <label for="asl-range">
+                    {{ $t('plugin-asl:range') }}
+                </label>
+                <select
+                    id="asl-range"
+                    v-model="age"
+                    class="plugin-asl-userbrowser-ages"
+                    @change="updateSelectedAgeRange()"
                 >
-                    {{
-                        ageRange.name[0] === '_' ?
-                            $t('plugin-asl:' + ageRange.name.substr(1)) :
-                            ageRange.name
-                    }}
-                </option>
-            </select>
+                    <option
+                        v-for="ageRange in ageRanges"
+                        :key="'agerange-' + ageRange.value"
+                        :value="ageRange.value"
+                    >
+                        {{
+                            ageRange.name[0] === '_'
+                                ? $t('plugin-asl:' + ageRange.name.substr(1))
+                                : ageRange.name
+                        }}
+                    </option>
+                </select>
+            </div>
+            <div class="plugin-asl-userbrowser-option">
+                <input id="asl-global" v-model="showGlobal" type="checkbox">
+                <label for="asl-global">
+                    {{ $t('plugin-asl:global') }}
+                </label>
+            </div>
         </div>
         <div class="plugin-asl-userbrowser-filter u-form">
-            <input v-model="filter" class="u.input" type="text" @change="updateUserFilter()">
-            <i v-if="filter !== ''" class="fa fa-undo" aria-hidden="true" @click="filter = ''"/>
+            <input
+                v-model="filter"
+                class="u.input"
+                type="text"
+                :placeholder="$t('plugin-asl:filter')"
+                @change="updateUserFilter()"
+            >
+            <i v-if="filter !== ''" class="fa fa-undo" aria-hidden="true" @click="filter = ''" />
         </div>
         <div class="plugin-asl-userbrowser-users">
             <table class="plugin-asl-userbrowser-users-table">
                 <tr>
-                    <th style="width: 35%; text-align: left;">{{ $t('nick') }}</th>
-                    <th style="width: 15%;">{{ $t('plugin-asl:age') }}</th>
-                    <th style="width: 50%; text-align: left;">{{ $t('plugin-asl:location') }}</th>
+                    <th style="width: 35%; text-align: left">{{ $t('nick') }}</th>
+                    <th style="width: 15%">{{ $t('plugin-asl:age') }}</th>
+                    <th style="width: 50%; text-align: left">{{ $t('plugin-asl:location') }}</th>
                 </tr>
-                <tr v-for="user in filteredUsers" :key="'users-'+user.nick">
+                <tr v-for="user in filteredUsers" :key="'users-' + user.nick">
                     <td
-                        :style="{ 'color': user.colour }"
+                        :style="{ color: user.colour }"
                         class="plugin-asl-userbrowser-users-nick"
-                        @click.stop="openUserbox(user);"
-                    >{{ user.nick }}</td>
+                        @click.stop="openUserbox(user)"
+                    >
+                        {{ user.nick }}
+                    </td>
                     <td class="plugin-asl-userbrowser-users-age">{{ user.asl.a || '&nbsp;' }}</td>
                     <td>{{ user.asl.l || '&nbsp;' }}</td>
                 </tr>
@@ -64,7 +86,6 @@
 </template>
 
 <script>
-
 /* global _:true */
 
 import * as config from '../config.js';
@@ -73,6 +94,7 @@ export default {
     props: ['network', 'buffer', 'sidebarState'],
     data() {
         return {
+            showGlobal: false,
             sexes: {},
             selectedSexes: {},
             ageRanges: [],
@@ -82,12 +104,11 @@ export default {
     },
     computed: {
         filteredUsers() {
-            let showGlobal = config.setting('userBrowserGlobal');
-            let bufferUsers = showGlobal ?
-                Object.values(this.network.users) :
-                this.buffer.users;
+            let bufferUsers = this.showGlobal
+                ? Object.values(this.network.users)
+                : this.buffer.users;
 
-            if (showGlobal) {
+            if (this.showGlobal) {
                 this.network.buffers.forEach((buffer) => {
                     // Noop so it updates if any buffer.users change
                     // eslint-disable-next-line no-unused-expressions
@@ -138,6 +159,7 @@ export default {
         },
     },
     created() {
+        this.showGlobal = config.setting('userBrowserGlobal');
         this.sexes = config.setting('sexes');
         this.ageRanges = config.setting('ageRanges');
         this.age = this.$state.pluginASL.selectedAgeRange;
@@ -172,26 +194,32 @@ export default {
     height: 100%;
     display: flex;
     flex-direction: column;
+    gap: 6px;
+    padding: 10px;
 }
 
-.plugin-asl-userbrowser-sexes {
-    display: inline-block;
-    font-weight: bold;
-    margin: 4px 4px 4px 10px;
+.plugin-asl-userbrowser-options {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 14px;
 }
 
-.plugin-asl-userbrowser-sexes input,
-.plugin-asl-userbrowser-sexes label {
-    vertical-align: middle;
-    display: inline-block;
+.plugin-asl-userbrowser-option {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.plugin-asl-userbrowser-option label {
+    font-weight: 700;
 }
 
 .plugin-asl-userbrowser-ages {
-    margin: 4px;
+    margin-left: 7px;
 }
 
 .plugin-asl-userbrowser-filter {
-    margin-left: 10px;
     width: 100%;
 }
 

@@ -47,6 +47,7 @@ note: the variables starting with _ are treated as translation keys
     "showRealname": false,
     "showUserBrowser": true,
     "userBrowserIcon": "fa-heart",
+    "userBrowserGlobal": false,
     "fallbackColour": "default",
     "singleLineUserbox": false,
     "singleLineString": {
