@@ -608,9 +608,10 @@ export default {
 form.kiwi-welcome-simple-form {
     width: 70%;
     padding: 20px;
+    margin: auto;
 }
 
-@media (max-width: 1025px) {
+@media (max-width: 1115px) {
     form.kiwi-welcome-simple-form {
         width: 100%;
     }

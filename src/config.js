@@ -4,7 +4,7 @@
 const basePath = getBasePath();
 const configBase = 'plugin-asl';
 
-const defaultConfig = {
+export const defaultConfig = {
     // Where the web browser can find the locale json files
     localesPath: basePath + 'plugin-asl/locales/{{lng}}.json',
 

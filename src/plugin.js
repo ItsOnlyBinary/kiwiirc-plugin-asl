@@ -16,6 +16,7 @@ kiwi.plugin('asl', (kiwi, log) => {
         kiwi.addTranslationFiles('plugin-asl', localesPath, fallbackLocale);
     } else {
         log.error('localesPath is missing {{lng}}, please update your config.json');
+        kiwi.addTranslationFiles('plugin-asl', config.defaultConfig.localesPath, fallbackLocale);
     }
 
     // add the custom welcome screen and userbox info
