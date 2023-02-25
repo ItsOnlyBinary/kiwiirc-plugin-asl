@@ -64,21 +64,27 @@
                         />
                         <div class="kiwi-welcome-simple-sex">
                             <label>{{ $t('plugin-asl:sex') }}</label>
-                            <select v-model="sex" :class="{'kiwi-input-invalid': !isSexValid}">
-                                <option :value="null" selected disabled>
-                                    {{ $t('plugin-asl:select') }}
-                                </option>
-                                <option
-                                    v-for="sexObj of sexes"
-                                    :key="'sexes-'+sexObj.name"
-                                    :value="sexObj.chars[0]"
-                                    :style="{ 'color': sexObj.colour }"
-                                >{{
-                                    sexObj.name[0] === '_' ?
-                                        $t('plugin-asl:' + sexObj.name.substr(1)) :
-                                        sexObj.name
-                                }}</option>
-                            </select>
+                            <div class="kiwi-welcome-simple-sex-select">
+                                <select
+                                    v-model="sex"
+                                    class="u-input"
+                                    :class="{'kiwi-input-invalid': !isSexValid}"
+                                >
+                                    <option :value="null" selected disabled>
+                                        {{ $t('plugin-asl:select') }}
+                                    </option>
+                                    <option
+                                        v-for="sexObj of sexes"
+                                        :key="'sexes-'+sexObj.name"
+                                        :value="sexObj.chars[0]"
+                                        :style="{ 'color': sexObj.colour }"
+                                    >{{
+                                        sexObj.name[0] === '_' ?
+                                            $t('plugin-asl:' + sexObj.name.substr(1)) :
+                                            sexObj.name
+                                    }}</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <input-text
@@ -687,16 +693,27 @@ form.kiwi-welcome-simple-form h2 {
 }
 
 .u-form .kiwi-welcome-simple-sex select {
+    position: relative;
+    -webkit-appearance: initial;
     border-radius: 5px;
     color: var(--brand-input-fg);
-    background-color: var(--brand-default-bg);
     font-size: inherit;
     overflow: hidden;
-    padding: 14px 14px;
+    padding: 15px 14px;
     text-overflow: ellipsis;
     white-space: nowrap;
     box-sizing: border-box;
     width: 100%;
+    z-index: 1;
+}
+
+.u-form .kiwi-welcome-simple-sex-select::after {
+    font-family: fontAwesome, sans-serif;
+    content: '\f078';
+    position: absolute;
+    right: 1em;
+    padding: 16px 0;
+    line-height: 1em;
 }
 
 .u-form .kiwi-welcome-simple-sex select:focus {
