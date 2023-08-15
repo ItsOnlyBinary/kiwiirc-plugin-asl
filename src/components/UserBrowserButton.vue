@@ -1,5 +1,5 @@
 <template id="user-browser">
-    <div :class="[active ? 'kiwi-header-option--active': '']" class="kiwi-header-option">
+    <div :class="[isActive ? 'kiwi-header-option--active': '']" class="kiwi-header-option">
         <a @click.prevent="toggleUserBrowser">
             <i :class="icon" class="fa" aria-hidden="true"/>
         </a>
@@ -14,25 +14,30 @@ import * as config from '../config.js';
 import UserBrowser from './UserBrowser.vue';
 
 export default {
-    data() {
-        return {
-            active: false,
-        };
-    },
+    props: ['sidebarState'],
     computed: {
+        isActive() {
+            return (this.sidebarState.isOpen || this.sidebarState.isDrawn) &&
+                this.sidebarState.activeComponentProps?.componentName === 'PluginASLUserBrowser';
+        },
         icon() {
             return config.getSetting('userBrowserIcon');
         },
     },
     created() {
         this.listen(this.$state, 'plugin-asl.userbrowser.close', () => {
-            this.active = false;
+            if (this.isActive) {
+                kiwi.showInSidebar(null);
+            }
         });
     },
     methods: {
         toggleUserBrowser() {
-            kiwi.showInSidebar(this.active ? null : UserBrowser);
-            this.active = true;
+            if (this.isActive) {
+                kiwi.showInSidebar(null);
+                return;
+            }
+            kiwi.showInSidebar(UserBrowser, { componentName: 'PluginASLUserBrowser' });
         },
     },
 };

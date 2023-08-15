@@ -4,9 +4,9 @@
 const basePath = getBasePath();
 const configBase = 'plugin-asl';
 
-const defaultConfig = {
+export const defaultConfig = {
     // Where the web browser can find the locale json files
-    localesPath: basePath + 'plugin-asl/locales',
+    localesPath: basePath + 'plugin-asl/locales/{{lng}}.json',
 
     // Type 1 "[a/s/l?] realname?"
     // Type 2 "a s l?"
@@ -20,6 +20,9 @@ const defaultConfig = {
 
     // What icon to use for User Browser
     userBrowserIcon: 'fa-heart',
+
+    // Should the userbrowser show users from all channels
+    userBrowserGlobal: false,
 
     // What colour to use if user did not provide sex
     // 'default' is css default colour
@@ -83,19 +86,8 @@ const defaultConfig = {
     welcomeUsesLocalStorage: true,
 };
 
-export function setDefaults() {
-    let walkConfig = (obj, _target) => {
-        _.each(obj, (val, key) => {
-            let target = [..._target, key];
-            let targetName = target.join('.');
-            if (typeof val === 'object' && !_.isArray(val)) {
-                walkConfig(val, target);
-            } else if (typeof getSetting(targetName) === 'undefined') {
-                setSetting(targetName, val);
-            }
-        });
-    };
-    walkConfig(defaultConfig, []);
+export function setDefaults(kiwi) {
+    kiwi.setConfigDefaults(configBase, defaultConfig);
 
     // Set internal defaults
     const pluginASL = kiwi.state.pluginASL = Object.create(null);
@@ -103,14 +95,13 @@ export function setDefaults() {
     const ageRanges = getSetting('ageRanges');
     pluginASL.selectedAgeRange = ageRanges[0].value;
 
-    const sexes = getSetting('sexes');
+    let sexes = getSetting('sexes');
     if (typeof sexes !== 'object' || !_.isArray(sexes)) {
         // eslint-disable-next-line no-console
         console.error('sexes config option has changed to an array please update your config');
         // eslint-disable-next-line no-console
         console.error('see here: https://github.com/ItsOnlyBinary/kiwiirc-plugin-asl#configuration');
-        kiwi.state.setSetting('settings.startupScreen', 'welcome');
-        return;
+        sexes = defaultConfig.sexes;
     }
     pluginASL.selectedSexes = {};
     let sexesRegex = '';
@@ -130,6 +121,11 @@ export function setDefaults() {
         regex: new RegExp('(\\d+)\\s+([' + sexesRegex + '])(\\s+(.*))?'),
         build: '%asl',
         separator: ' ',
+    });
+    pluginASL.gecosTypes.push({
+        regex: new RegExp('(\\d+|\\*)\\s?\\/\\s?([' + sexesRegex + '*])(\\s?\\/\\s?(.*?|\\*))?'),
+        build: '%asl',
+        separator: '/',
     });
 
     pluginASL.userFilter = '';

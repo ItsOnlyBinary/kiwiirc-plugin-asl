@@ -3,23 +3,23 @@
         ref="layout"
         class="kiwi-welcome-simple"
     >
-        <template v-if="startupOptions.altComponent" v-slot:connection>
+        <template v-if="startupOptions.altComponent" #connection>
             <component :is="startupOptions.altComponent" @close="onAltClose" />
         </template>
-        <template v-else v-slot:connection>
+        <template v-else #connection>
             <form class="u-form u-form--big kiwi-welcome-simple-form" @submit.prevent="formSubmit">
                 <h2 v-html="greetingText" />
                 <div
-                    v-if="network && (network.last_error || network.state_error || errorMessage)"
+                    v-if="network && (connectErrors.length > 0 || network.state_error)"
                     class="kiwi-welcome-simple-error"
                 >
-                    <span v-if="!network.last_error && network.state_error">
-                        {{ $t('network_noconnect') }}
-                    </span>
-                    <span v-if="errorMessage">{{ errorMessage }}</span>
-                    <span v-if="network.last_error || network.state_error">
-                        {{ network.last_error || readableStateError(network.state_error) }}
-                    </span>
+                    <template v-if="connectErrors.length > 0">
+                        <span v-for="err in connectErrors" :key="err">{{ err }}</span>
+                    </template>
+                    <template v-else>
+                        <span>{{ $t('network_noconnect') }}</span>
+                        <span>{{ readableStateError(network.state_error) }}</span>
+                    </template>
                 </div>
 
                 <input-text
@@ -39,8 +39,9 @@
                     </label>
                 </div>
 
-                <div v-if="showPass && (show_password_box || !toggablePass)"
-                     class="kiwi-welcome-simple-input-container"
+                <div
+                    v-if="showPass && (show_password_box || !toggablePass)"
+                    class="kiwi-welcome-simple-input-container"
                 >
                     <input-text
                         v-model="password"
@@ -63,21 +64,27 @@
                         />
                         <div class="kiwi-welcome-simple-sex">
                             <label>{{ $t('plugin-asl:sex') }}</label>
-                            <select v-model="sex" :class="{'kiwi-input-invalid': !isSexValid}">
-                                <option :value="null" selected disabled>
-                                    {{ $t('plugin-asl:select') }}
-                                </option>
-                                <option
-                                    v-for="sexObj of sexes"
-                                    :key="'sexes-'+sexObj.name"
-                                    :value="sexObj.chars[0]"
-                                    :style="{ 'color': sexObj.colour }"
-                                >{{
-                                    sexObj.name[0] === '_' ?
-                                        $t('plugin-asl:' + sexObj.name.substr(1)) :
-                                        sexObj.name
-                                }}</option>
-                            </select>
+                            <div class="kiwi-welcome-simple-sex-select">
+                                <select
+                                    v-model="sex"
+                                    class="u-input"
+                                    :class="{'kiwi-input-invalid': !isSexValid}"
+                                >
+                                    <option :value="null" selected disabled>
+                                        {{ $t('plugin-asl:select') }}
+                                    </option>
+                                    <option
+                                        v-for="sexObj of sexes"
+                                        :key="'sexes-'+sexObj.name"
+                                        :value="sexObj.chars[0]"
+                                        :style="{ 'color': sexObj.colour }"
+                                    >{{
+                                        sexObj.name[0] === '_' ?
+                                            $t('plugin-asl:' + sexObj.name.substr(1)) :
+                                            sexObj.name
+                                    }}</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <input-text
@@ -147,9 +154,9 @@ export default {
         Captcha,
         StartupLayout,
     },
-    data: function data() {
+    data() {
         return {
-            errorMessage: '',
+            connectErrors: [],
             network: null,
             channel: '',
             nick: '',
@@ -276,7 +283,7 @@ export default {
 
             return this.nick.match(nickPattern);
         },
-        readyToStart: function readyToStart() {
+        readyToStart() {
             let ready = !!this.nick;
 
             if (!this.connectWithoutChannel && !this.channel) {
@@ -317,7 +324,7 @@ export default {
             }
         },
     },
-    created: function created() {
+    created() {
         let options = this.startupOptions;
         let connectOptions = this.connectOptions();
 
@@ -327,18 +334,24 @@ export default {
             previousNet = this.$state.getNetworkFromAddress(connectOptions.hostname.trim());
         }
 
-        if (previousNet && previousNet.connection.nick) {
-            this.nick = previousNet.connection.nick;
-        } else if (Misc.queryStringVal('nick')) {
+        if (Misc.queryStringVal('nick')) {
             this.nick = Misc.queryStringVal('nick');
+        } else if (previousNet && previousNet.connection.nick) {
+            this.nick = previousNet.connection.nick;
         } else {
             this.nick = options.nick;
         }
         this.nick = this.processNickRandomNumber(this.nick || '');
 
         if (options.password) {
+            // Don't use previousNet.password if we did not use previousNet.nick
             this.password = options.password;
-        } else if (previousNet && previousNet.password) {
+        } else if (
+            previousNet &&
+            previousNet.password && (
+                !Misc.queryStringVal('nick') || previousNet.connection.nick === Misc.queryStringVal('nick')
+            )
+        ) {
             this.password = previousNet.password;
             this.show_password_box = true;
         } else {
@@ -450,7 +463,7 @@ export default {
                 this.password = event.password;
             }
             if (event.error) {
-                this.errorMessage = event.error;
+                this.connectErrors.push(event.error);
             }
 
             this.$state.settings.startupOptions.altComponent = null;
@@ -458,13 +471,13 @@ export default {
         readableStateError(err) {
             return Misc.networkErrorMessage(err);
         },
-        formSubmit: function formSubmit() {
+        formSubmit() {
             if (this.readyToStart) {
                 this.startUp();
             }
         },
-        startUp: function startUp() {
-            this.errorMessage = '';
+        startUp() {
+            this.connectErrors = [];
 
             let options = Object.assign({}, this.$state.settings.startupOptions);
             let connectOptions = this.connectOptions();
@@ -544,25 +557,29 @@ export default {
                     this.$refs.layout.close();
                 }
                 net.ircClient.off('registered', onRegistered);
-                net.ircClient.off('irc error', onError);
                 net.ircClient.off('close', onClosed);
-            };
-            let onError = (event) => {
-                this.errorMessage = event.reason;
-                net.ircClient.off('registered', onRegistered);
                 net.ircClient.off('irc error', onError);
-                net.ircClient.off('close', onClosed);
             };
             let onClosed = () => {
+                let lastError = this.network.last_error;
+                if (lastError && !this.connectErrors.includes(lastError)) {
+                    this.connectErrors.push(lastError);
+                }
                 net.ircClient.off('registered', onRegistered);
-                net.ircClient.off('irc error', onError);
                 net.ircClient.off('close', onClosed);
+                net.ircClient.off('irc error', onError);
+            };
+            let onError = (event) => {
+                if (!event.reason || this.connectErrors.includes(event.reason)) {
+                    return;
+                }
+                this.connectErrors.push(event.reason);
             };
             net.ircClient.once('registered', onRegistered);
-            net.ircClient.once('irc error', onError);
             net.ircClient.once('close', onClosed);
+            net.ircClient.on('irc error', onError);
         },
-        processNickRandomNumber: function processNickRandomNumber(nick) {
+        processNickRandomNumber(nick) {
             // Replace ? with a random number
             let tmp = (nick || '').replace(/\?/g, () => Math.floor(Math.random() * 100).toString());
             return _.trim(tmp);
@@ -601,9 +618,10 @@ export default {
 form.kiwi-welcome-simple-form {
     width: 70%;
     padding: 20px;
+    margin: auto;
 }
 
-@media (max-width: 1025px) {
+@media (max-width: 1115px) {
     form.kiwi-welcome-simple-form {
         width: 100%;
     }
@@ -679,16 +697,27 @@ form.kiwi-welcome-simple-form h2 {
 }
 
 .u-form .kiwi-welcome-simple-sex select {
+    position: relative;
+    -webkit-appearance: initial;
     border-radius: 5px;
     color: var(--brand-input-fg);
-    background-color: var(--brand-default-bg);
     font-size: inherit;
     overflow: hidden;
-    padding: 14px 14px;
+    padding: 15px 14px;
     text-overflow: ellipsis;
     white-space: nowrap;
     box-sizing: border-box;
     width: 100%;
+    z-index: 1;
+}
+
+.u-form .kiwi-welcome-simple-sex-select::after {
+    font-family: fontAwesome, sans-serif;
+    content: '\f078';
+    position: absolute;
+    right: 1em;
+    padding: 16px 0;
+    line-height: 1em;
 }
 
 .u-form .kiwi-welcome-simple-sex select:focus {

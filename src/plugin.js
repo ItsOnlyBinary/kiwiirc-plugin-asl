@@ -1,29 +1,32 @@
 import CustomWelcome from './components/CustomWelcome.vue';
-import CustomUserBox from './components/CustomUserBox.vue';
+import UserBoxInfo from './components/UserBoxInfo.vue';
 import UserBrowserButton from './components/UserBrowserButton.vue';
-import Locales from './libs/locales.js';
 import * as config from './config.js';
 import * as utils from './libs/utils.js';
 
+import fallbackLocale from '../res/locales/en-us.json';
+
 // eslint-disable-next-line no-undef
-kiwi.plugin('asl', (kiwi) => {
-    config.setDefaults();
+kiwi.plugin('asl', (kiwi, log) => {
+    config.setDefaults(kiwi);
 
     // setup the plugins locales
     let localesPath = kiwi.state.getSetting('settings.plugin-asl.localesPath');
-    let locales = new Locales();
-    locales.init(localesPath, 'plugin-asl', 'age');
+    if (localesPath.includes('{{lng}}')) {
+        kiwi.addTranslationFiles('plugin-asl', localesPath, fallbackLocale);
+    } else {
+        log.error('localesPath is missing {{lng}}, please update your config.json');
+        kiwi.addTranslationFiles('plugin-asl', config.defaultConfig.localesPath, fallbackLocale);
+    }
 
-    // add the custom welcome screen and replace userbox
+    // add the custom welcome screen and userbox info
     kiwi.addStartup('plugin-asl', CustomWelcome);
-    kiwi.replaceModule('components/UserBox', CustomUserBox);
+    kiwi.addUi('userbox_info', UserBoxInfo);
 
     // show the user browser if its enabled
     if (kiwi.state.getSetting('settings.plugin-asl.showUserBrowser')) {
         // add a button to channel headers to open the sidebar component
-        let browserButton = new kiwi.Vue(UserBrowserButton);
-        browserButton.$mount();
-        kiwi.addUi('header_channel', browserButton.$el);
+        kiwi.addUi('header_channel', UserBrowserButton);
     }
 
     // handle user joining one of the channels
