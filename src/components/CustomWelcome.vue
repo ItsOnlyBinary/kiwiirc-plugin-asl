@@ -88,6 +88,7 @@
                         </div>
                     </div>
                     <input-text
+                        v-if="showLocation"
                         v-model="location"
                         :label="$t('plugin-asl:location')"
                         :class="{'kiwi-input-invalid': !isLocationValid}"
@@ -193,6 +194,9 @@ export default {
         },
         sexes() {
             return config.getSetting('sexes');
+        },
+        showLocation() {
+            return config.getSetting('showLocation');
         },
         showRealname() {
             let showRealname = config.getSetting('showRealname');
@@ -730,7 +734,7 @@ form.kiwi-welcome-simple-form h2 {
 }
 
 .kiwi-input-invalid.u-input-text input.u-input,
-select.kiwi-input-invalid {
+.u-form select.kiwi-input-invalid {
     border-color: var(--brand-error);
 }
 
