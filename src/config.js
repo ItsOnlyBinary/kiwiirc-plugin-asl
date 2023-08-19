@@ -12,6 +12,9 @@ export const defaultConfig = {
     // Type 2 "a s l?"
     gecosType: 1,
 
+    // If should show location input box on welcome screen
+    showLocation: true,
+
     // If should show realname input box on welcome screen
     showRealname: false,
 
