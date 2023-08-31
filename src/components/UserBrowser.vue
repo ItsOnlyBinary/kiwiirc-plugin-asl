@@ -65,9 +65,9 @@
         <div class="plugin-asl-userbrowser-users">
             <table class="plugin-asl-userbrowser-users-table">
                 <tr>
-                    <th style="width: 35%; text-align: left">{{ $t('nick') }}</th>
-                    <th style="width: 15%">{{ $t('plugin-asl:age') }}</th>
-                    <th style="width: 50%; text-align: left">{{ $t('plugin-asl:location') }}</th>
+                    <th style="width: 35%; text-align: left;">{{ $t('nick') }}</th>
+                    <th style="width: 15%;">{{ $t('plugin-asl:age') }}</th>
+                    <th style="width: 50%; text-align: left;">{{ $t('plugin-asl:location') }}</th>
                 </tr>
                 <tr v-for="user in filteredUsers" :key="'users-' + user.nick">
                     <td
@@ -200,8 +200,7 @@ export default {
 
 .plugin-asl-userbrowser-options {
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+    flex-flow: row wrap;
     gap: 14px;
 }
 

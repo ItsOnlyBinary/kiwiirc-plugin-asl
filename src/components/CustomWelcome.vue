@@ -108,6 +108,13 @@
                     />
                 </div>
 
+                <div v-if="termsContent" class="kiwi-welcome-simple-terms">
+                    <div>
+                        <input v-model="termsAccepted" type="checkbox">
+                    </div>
+                    <div class="kiwi-welcome-simple-terms-content" v-html="termsContent" />
+                </div>
+
                 <captcha
                     :network="network"
                 />
@@ -235,19 +242,25 @@ export default {
         startupOptions() {
             return this.$state.settings.startupOptions;
         },
-        greetingText: function greetingText() {
+        greetingText() {
             let greeting = this.$state.settings.startupOptions.greetingText;
             return typeof greeting === 'string' ?
                 greeting :
                 this.$t('start_greeting');
         },
-        footerText: function footerText() {
+        footerText() {
             let footer = this.$state.settings.startupOptions.footerText;
             return typeof footer === 'string' ?
                 footer :
                 '';
         },
-        buttonText: function buttonText() {
+        termsContent() {
+            let terms = this.$state.settings.startupOptions.termsContent;
+            return typeof terms === 'string' ?
+                terms :
+                '';
+        },
+        buttonText() {
             let greeting = this.$state.settings.startupOptions.buttonText;
             return typeof greeting === 'string' ?
                 greeting :
@@ -310,6 +323,10 @@ export default {
             }
 
             if (!this.isNickValid) {
+                ready = false;
+            }
+
+            if (this.termsContent && !this.termsAccepted) {
                 ready = false;
             }
 
@@ -622,10 +639,9 @@ export default {
 form.kiwi-welcome-simple-form {
     width: 70%;
     padding: 20px;
-    margin: auto;
 }
 
-@media (max-width: 1115px) {
+@media (max-width: 1025px) {
     form.kiwi-welcome-simple-form {
         width: 100%;
     }
@@ -682,6 +698,33 @@ form.kiwi-welcome-simple-form h2 {
     margin: 20px 0 40px 0;
 }
 
+.kiwi-welcome-simple-terms {
+    display: flex;
+    flex-direction: row;
+}
+
+.kiwi-welcome-simple-terms .kiwi-welcome-simple-terms-content {
+    margin-top: 3px;
+    line-height: 20px;
+}
+
+.kiwi-welcome-simple-form .u-submit {
+    width: 100%;
+    height: 50px;
+    font-size: 1.3em;
+}
+
+.kiwi-welcome-simple-start {
+    font-size: 1.1em;
+    cursor: pointer;
+}
+
+.kiwi-welcome-simple-start[disabled] {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+/* ASL additions */
 .kiwi-welcome-simple-age-sex {
     height: auto;
     position: relative;
@@ -738,20 +781,5 @@ form.kiwi-welcome-simple-form h2 {
     border-color: var(--brand-error);
 }
 
-.kiwi-welcome-simple-form .u-submit {
-    width: 100%;
-    height: 50px;
-    font-size: 1.3em;
-}
-
-.kiwi-welcome-simple-start {
-    font-size: 1.1em;
-    cursor: pointer;
-}
-
-.kiwi-welcome-simple-start[disabled] {
-    cursor: not-allowed;
-    opacity: 0.65;
-}
-
+/* End ASL additions */
 </style>
