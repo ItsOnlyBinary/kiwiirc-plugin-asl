@@ -1,5 +1,5 @@
 const path = require('path');
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const { VueLoaderPlugin } = require('vue-loader');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const makeSourceMap = process.argv.indexOf('--srcmap') > -1;
 
@@ -8,6 +8,9 @@ module.exports = {
     entry: './src/plugin.js',
     output: {
         filename: 'plugin-asl.js',
+    },
+    externals: {
+        'vue': 'kiwi.Vue',
     },
     module: {
         rules: [
