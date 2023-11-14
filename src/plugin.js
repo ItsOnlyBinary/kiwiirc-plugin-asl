@@ -3,6 +3,7 @@ import UserBoxInfo from './components/UserBoxInfo.vue';
 import UserBrowserButton from './components/UserBrowserButton.vue';
 import * as config from './config.js';
 import * as utils from './libs/utils.js';
+import * as colours from './libs/colours.js';
 
 import fallbackLocale from '../res/locales/en-us.json';
 
@@ -28,6 +29,30 @@ kiwi.plugin('asl', (kiwi, log) => {
         // add a button to channel headers to open the sidebar component
         kiwi.addUi('header_channel', UserBrowserButton);
     }
+
+    const TextFormatting = kiwi.require('helpers/TextFormatting');
+    const sexes = kiwi.state.getSetting('settings.plugin-asl.sexes');
+    const fallbackColour = kiwi.state.getSetting('settings.plugin-asl.fallbackColour');
+
+    TextFormatting.createNickColour = (nick) => {
+        const network = kiwi.state.getActiveNetwork();
+        const user = network.userByName(nick);
+        if (!user || !user.asl || !user.asl.s) {
+            return fallbackColour;
+        }
+
+        const userSex = sexes.find((sex) => sex.name === user.asl.s);
+        if (!userSex) {
+            return fallbackColour;
+        }
+
+        const sexRGB = colours.normaliseColour(userSex.colour);
+        const sexHSL = colours.rgb2hsl(sexRGB);
+
+        sexHSL.l = kiwi.themes.themeVar('nickcolour-lightness');
+
+        return colours.hsl2String(sexHSL);
+    };
 
     // handle user joining one of the channels
     kiwi.on('irc.join', (event, net) => {
@@ -60,6 +85,5 @@ kiwi.plugin('asl', (kiwi, log) => {
         let parsedGecos = utils.parseGecos(user.realname);
         userObj.asl = parsedGecos.asl;
         userObj.aslRealname = parsedGecos.realname;
-        userObj.colour = utils.getColour(userObj.asl);
     }
 });
