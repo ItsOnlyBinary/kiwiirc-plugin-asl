@@ -31,6 +31,7 @@ module.exports = {
         'import/no-unresolved': 0,
         'import/prefer-default-export': 0,
         'indent': ['error', 4],
+        'multiline-ternary': 0,
         'no-continue': 0,
         'no-control-regex': 0,
         'no-multi-assign': 0,
