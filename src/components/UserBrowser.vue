@@ -12,7 +12,7 @@
                     type="checkbox"
                     @change="toggleSex($event, sexObj.name)"
                 >
-                <label :for="'asl-' + sexObj.name" :style="{ color: sexObj.colour }">
+                <label :for="'asl-' + sexObj.name" :style="{ color: getSexColour(sexObj) }">
                     {{
                         sexObj.name[0] === '_'
                             ? $t('plugin-asl:' + sexObj.name.substr(1))
@@ -71,7 +71,7 @@
                 </tr>
                 <tr v-for="user in filteredUsers" :key="'users-' + user.nick">
                     <td
-                        :style="{ color: user.colour }"
+                        :style="{ color: user.getColour() }"
                         class="plugin-asl-userbrowser-users-nick"
                         @click.stop="openUserbox(user)"
                     >
@@ -86,9 +86,11 @@
 </template>
 
 <script>
+/* global kiwi:true */
 /* global _:true */
 
 import * as config from '../config.js';
+import * as colours from '../libs/colours.js';
 
 export default {
     props: ['network', 'buffer', 'sidebarState'],
@@ -184,6 +186,14 @@ export default {
         },
         updateUserFilter() {
             this.$state.pluginASL.userFilter = this.filter;
+        },
+        getSexColour(sexObj) {
+            const sexRGB = colours.normaliseColour(sexObj.colour);
+            const sexHSL = colours.rgb2hsl(sexRGB);
+
+            sexHSL.l = kiwi.themes.themeVar('nickcolour-lightness');
+
+            return colours.hsl2String(sexHSL);
         },
     },
 };
