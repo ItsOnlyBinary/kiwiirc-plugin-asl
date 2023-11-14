@@ -91,6 +91,7 @@ kiwi.plugin('asl', (kiwi, log) => {
         let parsedGecos = utils.parseGecos(user.realname);
         userObj.asl = parsedGecos.asl;
         userObj.aslRealname = parsedGecos.realname;
+        userObj.colour = '';
     }
 
     function getFallbackColour(nick) {
