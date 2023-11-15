@@ -68,9 +68,9 @@ export const defaultConfig = {
     // chars is for matching against gecos (can contain multiple)
     // the first char will be used in gecos creation
     sexes: [
-        { name: '_male', chars: 'M', colour: '#00F' },
-        { name: '_female', chars: 'F', colour: '#F0F' },
-        { name: '_other', chars: 'O', colour: '#0F0' },
+        { name: '_male', chars: 'M', colour: '#2980b9' },
+        { name: '_female', chars: 'F', colour: '#a72566' },
+        { name: '_other', chars: 'O', colour: '#3aa725' },
     ],
 
     // Keys used to get asl from query string

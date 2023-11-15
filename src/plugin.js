@@ -47,9 +47,15 @@ kiwi.plugin('asl', (kiwi, log) => {
         }
 
         const sexRGB = colours.normaliseColour(userSex.colour);
-        const sexHSL = colours.rgb2hsl(sexRGB);
+        if (!sexRGB) {
+            return userSex.colour;
+        }
 
-        sexHSL.l = kiwi.themes.themeVar('nickcolour-lightness');
+        const sexHSL = colours.rgb2hsl(sexRGB);
+        const lightness = TextFormatting.toInt(kiwi.themes.themeVar('nickcolour-lightness'));
+        if (lightness) {
+            sexHSL.l = lightness;
+        }
 
         return colours.hsl2String(sexHSL);
     };
