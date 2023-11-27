@@ -96,7 +96,7 @@ kiwi.plugin('asl', (kiwi, log) => {
 
     function getFallbackColour(nick) {
         const fallbackColour = kiwi.state.getSetting('settings.plugin-asl.fallbackColour');
-        if (fallbackColour === 'random') {
+        if (!fallbackColour || fallbackColour === 'random') {
             return createNickColour(nick);
         }
         return fallbackColour;
