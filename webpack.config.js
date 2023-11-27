@@ -8,6 +8,7 @@ module.exports = {
     entry: './src/plugin.js',
     output: {
         filename: 'plugin-asl.js',
+        clean: true,
     },
     module: {
         rules: [
