@@ -32,18 +32,18 @@ kiwi.plugin('asl', (kiwi, log) => {
 
     const TextFormatting = kiwi.require('helpers/TextFormatting');
     const sexes = kiwi.state.getSetting('settings.plugin-asl.sexes');
-    const fallbackColour = kiwi.state.getSetting('settings.plugin-asl.fallbackColour');
+    const createNickColour = TextFormatting.createNickColour;
 
     TextFormatting.createNickColour = (nick) => {
         const network = kiwi.state.getActiveNetwork();
         const user = network.userByName(nick);
         if (!user || !user.asl || !user.asl.s) {
-            return fallbackColour;
+            return getFallbackColour(nick);
         }
 
         const userSex = sexes.find((sex) => sex.name === user.asl.s);
         if (!userSex) {
-            return fallbackColour;
+            return getFallbackColour(nick);
         }
 
         const sexRGB = colours.normaliseColour(userSex.colour);
@@ -85,5 +85,13 @@ kiwi.plugin('asl', (kiwi, log) => {
         let parsedGecos = utils.parseGecos(user.realname);
         userObj.asl = parsedGecos.asl;
         userObj.aslRealname = parsedGecos.realname;
+    }
+
+    function getFallbackColour(nick) {
+        const fallbackColour = kiwi.state.getSetting('settings.plugin-asl.fallbackColour');
+        if (fallbackColour === 'random') {
+            return createNickColour(nick);
+        }
+        return fallbackColour;
     }
 });
