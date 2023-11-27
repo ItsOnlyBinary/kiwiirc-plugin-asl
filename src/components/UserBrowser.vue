@@ -92,6 +92,8 @@
 import * as config from '../config.js';
 import * as colours from '../libs/colours.js';
 
+const TextFormatting = kiwi.require('helpers/TextFormatting');
+
 export default {
     props: ['network', 'buffer', 'sidebarState'],
     data() {
@@ -190,8 +192,10 @@ export default {
         getSexColour(sexObj) {
             const sexRGB = colours.normaliseColour(sexObj.colour);
             const sexHSL = colours.rgb2hsl(sexRGB);
-
-            sexHSL.l = kiwi.themes.themeVar('nickcolour-lightness');
+            const lightness = TextFormatting.toInt(kiwi.themes.themeVar('nickcolour-lightness'));
+            if (lightness) {
+                sexHSL.l = lightness;
+            }
 
             return colours.hsl2String(sexHSL);
         },
