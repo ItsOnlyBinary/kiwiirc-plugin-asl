@@ -91,11 +91,12 @@ kiwi.plugin('asl', (kiwi, log) => {
         let parsedGecos = utils.parseGecos(user.realname);
         userObj.asl = parsedGecos.asl;
         userObj.aslRealname = parsedGecos.realname;
+        userObj.colour = '';
     }
 
     function getFallbackColour(nick) {
         const fallbackColour = kiwi.state.getSetting('settings.plugin-asl.fallbackColour');
-        if (fallbackColour === 'random') {
+        if (!fallbackColour || fallbackColour === 'random') {
             return createNickColour(nick);
         }
         return fallbackColour;
