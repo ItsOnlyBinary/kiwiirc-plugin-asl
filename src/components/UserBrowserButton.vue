@@ -1,7 +1,7 @@
 <template id="user-browser">
     <div :class="[isActive ? 'kiwi-header-option--active': '']" class="kiwi-header-option">
         <a @click.prevent="toggleUserBrowser">
-            <i :class="icon" class="fa" aria-hidden="true"/>
+            <i :class="icon" class="fa" aria-hidden="true" />
         </a>
     </div>
 </template>
