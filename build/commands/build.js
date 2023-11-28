@@ -16,7 +16,7 @@ console.log();
 spinner.text = `Building for ${webpackConfig.mode}...`;
 spinner.start();
 
-rimraf(utils.pathResolve('dist')).then(() => {
+rimraf(utils.pathResolve('dist/*'), { glob: true }).then(() => {
     webpack(webpackConfig, (wpErr, stats) => {
         spinner.stop();
         console.log();
