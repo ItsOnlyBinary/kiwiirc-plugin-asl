@@ -177,6 +177,7 @@ export default {
             connectWithoutChannel: false,
             showPlainText: false,
             captchaReady: false,
+            termsAccepted: false,
             ageInt: null,
             sex: null,
             location: '',

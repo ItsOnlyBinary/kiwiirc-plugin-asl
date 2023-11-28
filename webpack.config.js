@@ -1,60 +1,29 @@
-const path = require('path');
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const makeSourceMap = process.argv.indexOf('--srcmap') > -1;
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
-module.exports = {
-    mode: 'production',
-    entry: './src/plugin.js',
-    output: {
-        filename: 'plugin-asl.js',
-        clean: true,
-    },
-    module: {
-        rules: [
-            {
-                test: /\.vue$/,
-                loader: 'vue-loader',
-            },
-            {
-                test: /\.js$/,
-                use: [{loader: 'babel-loader'}],
-                include: [
-                    path.join(__dirname, 'src'),
-                ]
-            },
-            {
-                test: /\.css$/,
-                use: [ 'style-loader', 'css-loader' ]
-            },
-            {
-                test: /\.less$/,
-                use: [ 'vue-style-loader', 'css-loader', 'less-loader' ]
-            }
-        ]
-    },
-    plugins: [
-        new VueLoaderPlugin(),
-        new CopyWebpackPlugin({
-            patterns: [
-                {
-                    from: path.resolve(__dirname, './res/locales'),
-                    to: 'plugin-asl/locales/',
-                    toType: 'dir',
-                    globOptions: {
-                        ignore: ['.*']
-                    },
-                }
-            ],
-        })
-    ],
-    devtool: makeSourceMap ? 'source-map' : undefined,
-    devServer: {
-        static: path.join(__dirname, "dist"),
-        compress: true,
-        port: 9000,
-        headers: {
-            "Access-Control-Allow-Origin": "*"
-        }
+const devConfig = require('./build/configs/dev');
+const prodConfig = require('./build/configs/prod');
+
+module.exports = (env, argv) => {
+    const isDev = env.WEBPACK_SERVE;
+    let config = {
+        mode: isDev ? 'development' : 'production',
+    };
+
+    if (argv.mode) {
+        config.mode = argv.mode;
     }
+
+    if (argv.stats) {
+        config.plugins = [
+            new BundleAnalyzerPlugin(),
+        ];
+    }
+
+    if (isDev) {
+        config = devConfig(env, argv, config);
+    } else {
+        config = prodConfig(env, argv, config);
+    }
+
+    return config;
 };

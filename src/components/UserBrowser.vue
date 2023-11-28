@@ -55,7 +55,7 @@
         <div class="plugin-asl-userbrowser-filter u-form">
             <input
                 v-model="filter"
-                class="u.input"
+                class="u-input"
                 type="text"
                 :placeholder="$t('plugin-asl:filter')"
                 @change="updateUserFilter()"
