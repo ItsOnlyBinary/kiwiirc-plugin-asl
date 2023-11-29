@@ -9,14 +9,15 @@ const utils = require('../utils');
 const webpackConfigFunc = require('../../webpack.config');
 
 const argv = minimist(process.argv.slice(2));
-const webpackConfig = webpackConfigFunc({ WEBPACK_SERVE: true }, argv);
 const spinner = ora();
 
-console.log();
-spinner.text = 'Starting development server...';
-spinner.start();
-
 (async () => {
+    const webpackConfig = await webpackConfigFunc({ WEBPACK_SERVE: true }, argv);
+
+    console.log();
+    spinner.text = 'Starting development server...';
+    spinner.start();
+
     const devServerOptions = webpackConfig.devServer;
 
     const protocol = devServerOptions.https ? 'https' : 'http';

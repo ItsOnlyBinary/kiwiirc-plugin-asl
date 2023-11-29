@@ -1,0 +1,160 @@
+name: Release Workflow
+
+on:
+  pull_request:
+    types:
+      - opened
+      - closed
+      - reopened
+      - synchronize
+
+jobs:
+  check-release:
+    runs-on: ubuntu-latest
+    outputs:
+      release_version: ${{ steps.release-title.outputs.release_version }}
+    steps:
+      - name: Check if PR title is a release title
+        id: release-title
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const title = context.payload.pull_request.title || '';
+            const versionRegex = /^Release v(\d+\.\d+\.\d+)$/;
+            const match = title.match(versionRegex);
+            console.log('match', match);
+            core.setOutput("release_version", match ? match[1] : '');
+
+  pull-request:
+    runs-on: ubuntu-latest
+    needs: check-release
+    if: needs.check-release.outputs.release_version != '' && (github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize')
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Check package.json version
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [[ $version != "${{ needs.check-release.outputs.release_version }}" ]]; then
+            echo "PR does not match package.json version"
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Build
+        run: yarn build
+
+      - name: Check for release id in PR message
+        id: check-release-id
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const regex = /Release ID: (\d+)/;
+            const match = context.payload.pull_request.body?.match(regex);
+            const releaseId = match ? match[1] : null;
+            core.setOutput('release_id', releaseId);
+
+      - name: Create draft release
+        if: steps.check-release-id.outputs.release_id == ''
+        id: create-release-id
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const release = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: `v${{ needs.check-release.outputs.release_version }}`,
+              name: context.payload.pull_request.title,
+              draft: true
+            });
+
+            core.setOutput("release_id", release.data.id);
+
+      - name: Append release id to PR message
+        if: steps.create-release-id.outputs.release_id != ''
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const releaseId = ${{ steps.create-release-id.outputs.release_id }};
+            const currentBody = context.payload.pull_request.body || '';
+            const newBody = `${currentBody}\n\nRelease ID: ${releaseId}`;
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              body: newBody
+            });
+
+  merged-request:
+    runs-on: ubuntu-latest
+    needs: check-release
+    if: needs.check-release.outputs.release_version != '' && github.event.action == 'closed' && github.event.pull_request.merged
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check for release id in PR message
+        id: check-release-id
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const regex = /Release ID: (\d+)/;
+            const match = context.payload.pull_request.body.match(regex);
+            const releaseId = match ? match[1] : null;
+
+            if (!releaseId) {
+              core.setFailed("PR does not contain a release id");
+            }
+            core.setOutput('release_id', releaseId);
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Check package.json version
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [[ $version != "${{ needs.check-release.outputs.release_version }}" ]]; then
+            echo "PR does not match package.json version"
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Build
+        run: yarn build
+
+      - name: Create zip
+        run: |
+          mv dist plugins
+          zip -r -9 "${{ github.event.repository.name }}-v${{ needs.check-release.outputs.release_version }}.zip" plugins
+
+      - name: Attach zip to draft release
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fileName = "${{ github.event.repository.name }}-v${{ needs.check-release.outputs.release_version }}.zip";
+            await github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: ${{ steps.check-release-id.outputs.release_id }},
+              name: fileName,
+              data: require('fs').readFileSync(fileName)
+            });

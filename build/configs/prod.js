@@ -19,7 +19,7 @@ module.exports = (env, argv, config) => {
                 compressionOptions: {
                     level: 9,
                 },
-                threshold: 10240,
+                threshold: 1024,
             }),
             new CompressionPlugin({
                 filename: '[path][base].br',
@@ -30,31 +30,13 @@ module.exports = (env, argv, config) => {
                         [zlib.constants.BROTLI_PARAM_QUALITY]: 8,
                     },
                 },
-                threshold: 10240,
+                threshold: 1024,
             }),
         ],
 
         optimization: {
             minimize: true,
             minimizer: [new TerserPlugin(terserOptions), new CssMinimizerPlugin()],
-            moduleIds: 'deterministic',
-            splitChunks: {
-                cacheGroups: {
-                    defaultVendors: {
-                        name: 'chunk-vendors',
-                        test: /[\\/]node_modules[\\/]/,
-                        priority: -10,
-                        chunks: 'initial',
-                    },
-                    common: {
-                        name: 'chunk-common',
-                        minChunks: 2,
-                        priority: -20,
-                        chunks: 'initial',
-                        reuseExistingChunk: true,
-                    },
-                },
-            },
         },
     };
 

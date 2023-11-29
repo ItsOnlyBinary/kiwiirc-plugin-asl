@@ -1,6 +1,4 @@
-const fs = require('fs');
 const { merge } = require('webpack-merge');
-const CopyPlugin = require('copy-webpack-plugin');
 const murmurhash3 = require('murmurhash3js');
 const utils = require('../utils');
 const pkg = require('../../package.json');
@@ -57,27 +55,6 @@ module.exports = (env, argv, config) => {
     if (argv.port) {
         devConfig.devServer.port = argv.port;
     }
-
-    ['config.local.json', 'static/config.local.json']
-        .map((configPath) => utils.pathResolve(configPath))
-        .some((localConfig) => {
-            if (!fs.existsSync(localConfig)) {
-                return false;
-            }
-
-            const copyConfig = new CopyPlugin({
-                patterns: [
-                    {
-                        from: localConfig,
-                        to: utils.pathResolve('dist/static/config.json'),
-                        force: true,
-                    },
-                ],
-            });
-            devConfig.plugins.push(copyConfig);
-
-            return true;
-        });
 
     return merge(baseConfig(env, argv, config), devConfig);
 };
