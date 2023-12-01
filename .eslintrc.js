@@ -74,7 +74,6 @@ module.exports = {
         'no-control-regex': 0,
         'object-shorthand': 0,
         'operator-linebreak': 0,
-        'prefer-const': 0,
         'prefer-destructuring': 0,
         'prefer-object-spread': 0,
         'prefer-promise-reject-errors': 0,
@@ -87,15 +86,15 @@ module.exports = {
             asyncArrow: 'always',
         }],
         'vue/html-indent': ['error', 4],
-        // 'vue/max-len': [
-        //     'error',
-        //     {
-        //         code: 120,
-        //         template: 120,
-        //         tabWidth: 4,
-        //         comments: 120,
-        //     },
-        // ],
+        'vue/max-len': [
+            'error',
+            {
+                code: 120,
+                template: 120,
+                tabWidth: 4,
+                comments: 120,
+            },
+        ],
         'vue/max-attributes-per-line': 0,
         'vue/multi-word-component-names': 0,
         'vue/multiline-html-element-content-newline': 0,

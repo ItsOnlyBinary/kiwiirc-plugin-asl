@@ -1,9 +1,9 @@
 /* global kiwi:true */
 
 export function parseGecos(gecos) {
-    let types = kiwi.state.pluginASL.gecosTypes;
+    const types = kiwi.state.pluginASL.gecosTypes;
     for (let i = 0; i < types.length; i++) {
-        let result = gecos.match(types[i].regex);
+        const result = gecos.match(types[i].regex);
         if (result) {
             return {
                 asl: {
@@ -22,11 +22,11 @@ export function parseGecos(gecos) {
 }
 
 export function getColour(asl) {
-    let aslSex = asl && asl.s ? asl.s : '';
-    let sexes = kiwi.state.getSetting('settings.plugin-asl.sexes');
-    let fallbackColour = kiwi.state.getSetting('settings.plugin-asl.fallbackColour');
+    const aslSex = asl && asl.s ? asl.s : '';
+    const sexes = kiwi.state.getSetting('settings.plugin-asl.sexes');
+    const fallbackColour = kiwi.state.getSetting('settings.plugin-asl.fallbackColour');
     for (let i = 0; i < sexes.length; i++) {
-        let sex = sexes[i];
+        const sex = sexes[i];
         if (sex.name === aslSex) {
             return sex.colour;
         }
@@ -36,9 +36,9 @@ export function getColour(asl) {
 }
 
 export function getSexChar(sexName) {
-    let sexes = kiwi.state.getSetting('settings.plugin-asl.sexes');
+    const sexes = kiwi.state.getSetting('settings.plugin-asl.sexes');
     for (let i = 0; i < sexes.length; i++) {
-        let sex = sexes[i];
+        const sex = sexes[i];
         if (sex.name === sexName) {
             return sex.chars[0];
         }
@@ -48,9 +48,9 @@ export function getSexChar(sexName) {
 }
 
 function getSex(sexChar) {
-    let sexes = kiwi.state.getSetting('settings.plugin-asl.sexes');
+    const sexes = kiwi.state.getSetting('settings.plugin-asl.sexes');
     for (let i = 0; i < sexes.length; i++) {
-        let sex = sexes[i];
+        const sex = sexes[i];
         if (sex.chars.indexOf(sexChar) !== -1) {
             return sex.name;
         }

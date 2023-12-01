@@ -15,7 +15,6 @@ module.exports = {
         'no-descending-specificity': null,
         'no-empty-first-line': null,
         'number-max-precision': null,
-        'order/properties-order': null,
         'property-no-vendor-prefix': null,
         'scss/at-rule-no-unknown': [
             true,

@@ -1,9 +1,10 @@
-import CustomWelcome from './components/CustomWelcome.vue';
-import UserBoxInfo from './components/UserBoxInfo.vue';
-import UserBrowserButton from './components/UserBrowserButton.vue';
-import * as config from './config.js';
-import * as utils from './libs/utils.js';
-import * as colours from './libs/colours.js';
+import CustomWelcome from '@/components/CustomWelcome.vue';
+import UserBoxInfo from '@/components/UserBoxInfo.vue';
+import UserBrowserButton from '@/components/UserBrowserButton.vue';
+
+import * as config from '@/config.js';
+import * as utils from '@/libs/utils.js';
+import * as colours from '@/libs/colours.js';
 
 import fallbackLocale from '../res/locales/en-us.json';
 
@@ -12,7 +13,7 @@ kiwi.plugin('asl', (kiwi, log) => {
     config.setDefaults(kiwi);
 
     // setup the plugins locales
-    let localesPath = kiwi.state.getSetting('settings.plugin-asl.localesPath');
+    const localesPath = kiwi.state.getSetting('settings.plugin-asl.localesPath');
     if (localesPath.includes('{{lng}}')) {
         kiwi.addTranslationFiles('plugin-asl', localesPath, fallbackLocale);
     } else {
@@ -87,8 +88,8 @@ kiwi.plugin('asl', (kiwi, log) => {
     });
 
     function updateUser(net, user) {
-        let userObj = kiwi.state.getUser(net.id, user.nick) || kiwi.state.addUser(net, user);
-        let parsedGecos = utils.parseGecos(user.realname);
+        const userObj = kiwi.state.getUser(net.id, user.nick) || kiwi.state.addUser(net, user);
+        const parsedGecos = utils.parseGecos(user.realname);
         userObj.asl = parsedGecos.asl;
         userObj.aslRealname = parsedGecos.realname;
         userObj.colour = '';

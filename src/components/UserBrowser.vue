@@ -1,83 +1,67 @@
 <template>
-    <div class="plugin-asl-userbrowser-container">
-        <div class="plugin-asl-userbrowser-options u-form">
-            <div
-                v-for="sexObj of sexes"
-                :key="'sexes-' + sexObj.name"
-                class="plugin-asl-userbrowser-option"
-            >
+    <div class="p-asl-userbrowser-container">
+        <div class="p-asl-userbrowser-options u-form">
+            <div v-for="sexObj of sexes" :key="'sexes-' + sexObj.name" class="p-asl-userbrowser-option">
                 <input
                     :id="'asl-' + sexObj.name"
                     :checked="selectedSexes[sexObj.name]"
                     type="checkbox"
                     @change="toggleSex($event, sexObj.name)"
-                >
+                />
                 <label :for="'asl-' + sexObj.name" :style="{ color: getSexColour(sexObj) }">
-                    {{
-                        sexObj.name[0] === '_'
-                            ? $t('plugin-asl:' + sexObj.name.substr(1))
-                            : sexObj.name
-                    }}
+                    {{ sexObj.name[0] === '_' ? $t('plugin-asl:' + sexObj.name.substr(1)) : sexObj.name }}
                 </label>
             </div>
         </div>
-        <div class="plugin-asl-userbrowser-options u-form">
-            <div class="plugin-asl-userbrowser-option">
+        <div class="p-asl-userbrowser-options u-form">
+            <div class="p-asl-userbrowser-option">
                 <label for="asl-range">
                     {{ $t('plugin-asl:range') }}
                 </label>
                 <select
                     id="asl-range"
                     v-model="age"
-                    class="plugin-asl-userbrowser-ages"
+                    class="p-asl-userbrowser-ages"
                     @change="updateSelectedAgeRange()"
                 >
-                    <option
-                        v-for="ageRange in ageRanges"
-                        :key="'agerange-' + ageRange.value"
-                        :value="ageRange.value"
-                    >
-                        {{
-                            ageRange.name[0] === '_'
-                                ? $t('plugin-asl:' + ageRange.name.substr(1))
-                                : ageRange.name
-                        }}
+                    <option v-for="ageRange in ageRanges" :key="'agerange-' + ageRange.value" :value="ageRange.value">
+                        {{ ageRange.name[0] === '_' ? $t('plugin-asl:' + ageRange.name.substr(1)) : ageRange.name }}
                     </option>
                 </select>
             </div>
-            <div class="plugin-asl-userbrowser-option">
-                <input id="asl-global" v-model="showGlobal" type="checkbox">
+            <div class="p-asl-userbrowser-option">
+                <input id="asl-global" v-model="showGlobal" type="checkbox" />
                 <label for="asl-global">
                     {{ $t('plugin-asl:global') }}
                 </label>
             </div>
         </div>
-        <div class="plugin-asl-userbrowser-filter u-form">
+        <div class="p-asl-userbrowser-filter u-form">
             <input
                 v-model="filter"
                 class="u-input"
                 type="text"
                 :placeholder="$t('plugin-asl:filter')"
                 @change="updateUserFilter()"
-            >
+            />
             <i v-if="filter !== ''" class="fa fa-undo" aria-hidden="true" @click="filter = ''" />
         </div>
-        <div class="plugin-asl-userbrowser-users">
-            <table class="plugin-asl-userbrowser-users-table">
+        <div class="p-asl-userbrowser-users">
+            <table class="p-asl-userbrowser-table">
                 <tr>
-                    <th style="width: 35%; text-align: left;">{{ $t('nick') }}</th>
-                    <th style="width: 15%;">{{ $t('plugin-asl:age') }}</th>
-                    <th style="width: 50%; text-align: left;">{{ $t('plugin-asl:location') }}</th>
+                    <th style="width: 35%; text-align: left">{{ $t('nick') }}</th>
+                    <th style="width: 15%">{{ $t('plugin-asl:age') }}</th>
+                    <th style="width: 50%; text-align: left">{{ $t('plugin-asl:location') }}</th>
                 </tr>
-                <tr v-for="user in filteredUsers" :key="'users-' + user.nick">
+                <tr v-for="user in filteredUsers" :key="'table-' + user.nick">
                     <td
                         :style="{ color: user.getColour() }"
-                        class="plugin-asl-userbrowser-users-nick"
+                        class="p-asl-userbrowser-table-nick"
                         @click.stop="openUserbox(user)"
                     >
                         {{ user.nick }}
                     </td>
-                    <td class="plugin-asl-userbrowser-users-age">{{ user.asl.a || '&nbsp;' }}</td>
+                    <td class="p-asl-userbrowser-table-age">{{ user.asl.a || '&nbsp;' }}</td>
                     <td>{{ user.asl.l || '&nbsp;' }}</td>
                 </tr>
             </table>
@@ -89,8 +73,8 @@
 /* global kiwi:true */
 /* global _:true */
 
-import * as config from '../config.js';
-import * as colours from '../libs/colours.js';
+import * as config from '@/config.js';
+import * as colours from '@/libs/colours.js';
 
 const TextFormatting = kiwi.require('helpers/TextFormatting');
 
@@ -108,9 +92,7 @@ export default {
     },
     computed: {
         filteredUsers() {
-            let bufferUsers = this.showGlobal
-                ? Object.values(this.network.users)
-                : this.buffer.users;
+            const bufferUsers = this.showGlobal ? Object.values(this.network.users) : this.buffer.users;
 
             if (this.showGlobal) {
                 this.network.buffers.forEach((buffer) => {
@@ -120,7 +102,7 @@ export default {
                 });
             }
 
-            let filter = this.filter.toLowerCase();
+            const filter = this.filter.toLowerCase();
             return _.filter(bufferUsers, (user) => {
                 if (!user.asl) {
                     return false;
@@ -143,7 +125,7 @@ export default {
                 if (this.age[0] === '>' && user.asl.a <= parseInt(this.age.slice(1), 10)) {
                     return false;
                 }
-                let range = this.age.split('-');
+                const range = this.age.split('-');
                 if (range.length === 2 && (user.asl.a < range[0] || user.asl.a > range[1])) {
                     return false;
                 }
@@ -203,73 +185,73 @@ export default {
 };
 </script>
 
-<style>
-.plugin-asl-userbrowser-container {
-    height: 100%;
+<style lang="scss">
+.p-asl-userbrowser-container {
     display: flex;
     flex-direction: column;
     gap: 6px;
+    height: 100%;
     padding: 10px;
 }
 
-.plugin-asl-userbrowser-options {
+.p-asl-userbrowser-options {
     display: flex;
     flex-flow: row wrap;
     gap: 14px;
 }
 
-.plugin-asl-userbrowser-option {
+.p-asl-userbrowser-option {
     display: flex;
     align-items: center;
     white-space: nowrap;
+
+    label {
+        font-weight: 700;
+    }
 }
 
-.plugin-asl-userbrowser-option label {
-    font-weight: 700;
-}
-
-.plugin-asl-userbrowser-ages {
+.p-asl-userbrowser-ages {
     margin-left: 7px;
 }
 
-.plugin-asl-userbrowser-filter {
+.p-asl-userbrowser-filter {
     width: 100%;
+
+    input {
+        width: 300px;
+    }
+
+    i {
+        margin-left: 10px;
+    }
 }
 
-.plugin-asl-userbrowser-filter input {
-    width: 300px;
-}
-
-.plugin-asl-userbrowser-filter i {
-    margin-left: 10px;
-}
-
-.plugin-asl-userbrowser-users {
+.p-asl-userbrowser-users {
     height: 100%;
     margin: 4px;
     overflow-y: auto;
 }
 
-.plugin-asl-userbrowser-users-table {
+.p-asl-userbrowser-table {
     width: 100%;
     border-collapse: collapse;
+
+    td,
+    th {
+        padding: 0 4px;
+    }
+
+    tr:nth-child(even) {
+        background: rgba(0, 0, 0, 0.1);
+    }
 }
 
-.plugin-asl-userbrowser-users-table tr:nth-child(even) {
-    background: rgba(0, 0, 0, 0.1);
-}
-
-.plugin-asl-userbrowser-users-table td,
-.plugin-asl-userbrowser-users-table th {
-    padding: 0 4px;
-}
-
-.plugin-asl-userbrowser-users-nick {
+.p-asl-userbrowser-table-nick {
     font-weight: bold;
     cursor: pointer;
 }
 
-.plugin-asl-userbrowser-users-age {
+.p-asl-userbrowser-table-age {
     text-align: center;
 }
 </style>
