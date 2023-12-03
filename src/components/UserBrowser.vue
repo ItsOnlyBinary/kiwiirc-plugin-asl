@@ -62,7 +62,7 @@
                         {{ user.nick }}
                     </td>
                     <td class="p-asl-userbrowser-table-age">{{ user.asl.a || '&nbsp;' }}</td>
-                    <td>{{ user.asl.l || '&nbsp;' }}</td>
+                    <td class="p-asl-userbrowser-table-location">{{ user.asl.l || '&nbsp;' }}</td>
                 </tr>
             </table>
         </div>
@@ -187,6 +187,7 @@ export default {
 
 <style lang="scss">
 .p-asl-userbrowser-container {
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -228,12 +229,13 @@ export default {
 
 .p-asl-userbrowser-users {
     height: 100%;
-    margin: 4px;
-    overflow-y: auto;
+    margin-top: 4px;
+    overflow: hidden auto;
 }
 
 .p-asl-userbrowser-table {
     width: 100%;
+    max-width: 100%;
     border-collapse: collapse;
 
     td,
@@ -253,5 +255,12 @@ export default {
 
 .p-asl-userbrowser-table-age {
     text-align: center;
+}
+
+.p-asl-userbrowser-table-location {
+    max-width: 0;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 </style>
