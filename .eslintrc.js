@@ -54,13 +54,6 @@ module.exports = {
         }],
         'import/extensions': 0,
         'import/no-cycle': 0,
-        'import/no-unresolved': [2, {
-            ignore: [
-                // These files will not exist if lint is run before the first build
-                '/res/locales/available\\.json$',
-                '/static/locales/\\S+\\.json$',
-            ],
-        }],
         'import/prefer-default-export': 0,
         'indent': ['error', 4],
         // 'max-len': ['error', { code: 120 }],
@@ -86,16 +79,18 @@ module.exports = {
             named: 'never',
             asyncArrow: 'always',
         }],
+        'vue/object-curly-spacing': 0,
         'vue/html-indent': ['error', 4],
-        // 'vue/max-len': [
-        //     'error',
-        //     {
-        //         code: 120,
-        //         template: 120,
-        //         tabWidth: 4,
-        //         comments: 120,
-        //     },
-        // ],
+        'vue/max-len': [
+            'error',
+            {
+                code: 120,
+                template: 120,
+                tabWidth: 4,
+                comments: 120,
+                ignoreComments: true,
+            },
+        ],
         'vue/max-attributes-per-line': 0,
         'vue/multi-word-component-names': 0,
         'vue/multiline-html-element-content-newline': 0,
@@ -113,19 +108,7 @@ module.exports = {
         'vuejs-accessibility/interactive-supports-focus': 0,
         'vuejs-accessibility/label-has-for': 0,
         'vuejs-accessibility/mouse-events-have-key-events': 0,
-
-        // TODO vue3
-        'multiline-ternary': 0,
-        'vue/comma-dangle': 0,
-        'vue/key-spacing': 0,
-        'vue/no-template-target-blank': 0,
-        'vue/no-unused-components': 0,
-        'vue/object-curly-newline': 0,
-        'vue/object-curly-spacing': 0,
-        'vue/operator-linebreak': 0,
-        'vue/quote-props': 0,
-        'vue/space-infix-ops': 0,
-        'vue/v-on-event-hyphenation': 0,
+        'vuejs-accessibility/media-has-caption': 0,
     },
     overrides: [
         {

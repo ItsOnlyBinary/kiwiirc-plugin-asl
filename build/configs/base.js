@@ -46,6 +46,11 @@ module.exports = (env, argv, config) => {
             vue: 'kiwi.Vue',
         },
 
+        performance: {
+            maxEntrypointSize: 512 * utils.KiB, // 0.5MiB
+            maxAssetSize: 512 * utils.KiB, // 0.5MiB
+        },
+
         plugins: [
             new ESLintPlugin({
                 emitError: true,
@@ -58,7 +63,7 @@ module.exports = (env, argv, config) => {
             new CopyPlugin({
                 patterns: [
                     {
-                        from: utils.pathResolve('res/locales'),
+                        from: utils.pathResolve('src/res/locales'),
                         to: utils.pathResolve('dist/plugin-asl/locales'),
                         toType: 'dir',
                         globOptions: {
@@ -88,6 +93,9 @@ module.exports = (env, argv, config) => {
 
                                     // Object can be used for svg files
                                     object: 'data',
+                                },
+                                compilerOptions: {
+                                    comments: false,
                                 },
                             },
                         },

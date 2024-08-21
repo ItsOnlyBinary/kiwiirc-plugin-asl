@@ -1,9 +1,36 @@
 const pkg = require('../../../package.json');
 
+const pkgClass = pkg.name.replace(/^kiwiirc-/, '');
+const pkgClassShort = pkgClass.replace(/^plugin-/, 'p-');
+
+const allowedPrefixes = [
+    'kiwi-',
+    'u-',
+
+    `${pkgClass}-`,
+];
+
+const specialPrefixes = [
+    // IRC colour classes
+    'irc-fg-',
+    'irc-bg-',
+
+    // Special exception for google recaptcha -  welcome screen.
+    'g-',
+];
+
+if (pkgClass !== pkgClassShort) {
+    allowedPrefixes.push(`${pkgClassShort}-`);
+}
+
+const prefixes = [...allowedPrefixes, ...specialPrefixes];
+
+const reportMessage = `Expected class name to start with one of ['${allowedPrefixes.join('\', \'')}'] ({{ class }})`;
+
 module.exports = {
     meta: {
         docs: {
-            description: 'html class names must start with `u-` or `kiwi-`',
+            description: `html class names must start one of ['${allowedPrefixes.join('\', \'')}']`,
             category: 'base',
             url: null,
         },
@@ -18,19 +45,10 @@ module.exports = {
                 if (!c || c === 'fa' || c.startsWith('fa-')) {
                     return;
                 }
-                if (
-                    !c.startsWith('kiwi-')
-                        && !c.startsWith('u-')
-                        // Special exception for google recaptcha -  welcome screen.
-                        && !c.startsWith('g-')
-                        && !c.startsWith('irc-fg-')
-                        && !c.startsWith('irc-bg-')
-                        // Exceptions for plugin name
-                        && !c.startsWith(pkg.name.replace(/^kiwiirc-/, ''))
-                ) {
+                if (prefixes.every((p) => !c.startsWith(p))) {
                     context.report({
                         node,
-                        message: 'Expected class name to start with `kiwi-` or `u-` ({{ class }})',
+                        message: reportMessage,
                         data: {
                             class: c,
                         },

@@ -1,5 +1,13 @@
 module.exports = {
-    extends: ['stylelint-config-standard', 'stylelint-config-standard-scss', 'stylelint-config-recess-order'],
+    plugins: ['@stylistic/stylelint-plugin'],
+    extends: [
+        'stylelint-config-standard',
+        'stylelint-config-recommended',
+        'stylelint-config-recommended-vue',
+        'stylelint-config-standard-scss',
+        'stylelint-config-recommended-scss',
+        'stylelint-config-recess-order',
+    ],
     overrides: [
         {
             files: ['**/*.vue', '**/*.html'],
@@ -13,7 +21,6 @@ module.exports = {
         'declaration-no-important': true,
         'media-feature-range-notation': null,
         'no-descending-specificity': null,
-        'no-empty-first-line': null,
         'number-max-precision': null,
         'order/properties-order': null,
         'property-no-vendor-prefix': null,
@@ -43,5 +50,13 @@ module.exports = {
         'scss/double-slash-comment-whitespace-inside': null,
         'selector-class-pattern': null,
         'shorthand-property-no-redundant-values': null,
+
+        '@stylistic/color-hex-case': 'lower',
+        '@stylistic/indentation': 4,
+        // '@stylistic/no-empty-first-line': true,
+        '@stylistic/number-leading-zero': 'always',
+        '@stylistic/property-case': 'lower',
+        '@stylistic/string-quotes': 'single',
+        '@stylistic/unit-case': 'lower',
     },
 };

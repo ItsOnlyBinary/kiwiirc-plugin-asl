@@ -11,16 +11,18 @@
  */
 export function hex2rgb(hex) {
     // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-    let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])([a-f\d])?$/i;
-    let fullHex = hex.replace(shorthandRegex, (m, r, g, b, a) => r + r + g + g + b + b + (a ? a + a : ''));
+    const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])([a-f\d])?$/i;
+    const fullHex = hex.replace(shorthandRegex, (m, r, g, b, a) => r + r + g + g + b + b + (a ? a + a : ''));
 
-    let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?$/i.exec(fullHex);
-    return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16),
-        a: result[4] ? parseFloat((parseInt(result[4], 16) / 255).toFixed(3)) : undefined,
-    } : null;
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?$/i.exec(fullHex);
+    return result
+        ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16),
+            a: result[4] ? parseFloat((parseInt(result[4], 16) / 255).toFixed(3)) : undefined,
+        }
+        : null;
 }
 
 /**
@@ -61,8 +63,8 @@ export function rgb2hsl(rgb) {
     g /= 255;
     b /= 255;
 
-    let max = Math.max(r, g, b);
-    let min = Math.min(r, g, b);
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
     let h = 0;
     let s = 0;
     let l = (max + min) / 2;
@@ -70,7 +72,7 @@ export function rgb2hsl(rgb) {
     if (max === min) {
         h = s = 0; // achromatic
     } else {
-        let d = max - min;
+        const d = max - min;
         s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
         if (max === r) {
             h = (g - b) / d + (g < b ? 6 : 0);
@@ -101,8 +103,8 @@ export function rgb2hsl(rgb) {
  */
 export function hsl2rgb(hsl) {
     function hue2rgb(_p, _q, _t) {
-        let p = _p;
-        let q = _q;
+        const p = _p;
+        const q = _q;
         let t = _t;
         if (t < 0) t += 1;
         if (t > 1) t -= 1;
@@ -112,9 +114,9 @@ export function hsl2rgb(hsl) {
         return p;
     }
 
-    let h = hsl.h;
-    let s = hsl.s;
-    let l = hsl.l;
+    const h = hsl.h;
+    const s = hsl.s;
+    const l = hsl.l;
     let r = 0;
     let g = 0;
     let b = 0;
@@ -122,8 +124,8 @@ export function hsl2rgb(hsl) {
     if (s === 0) {
         r = g = b = l; // achromatic
     } else {
-        let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-        let p = 2 * l - q;
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
         r = hue2rgb(p, q, h + 1 / 3);
         g = hue2rgb(p, q, h);
         b = hue2rgb(p, q, h - 1 / 3);

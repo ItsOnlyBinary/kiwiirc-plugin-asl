@@ -12,11 +12,7 @@
             <div v-if="user.asl.s">
                 <span class="kiwi-userbox-basicinfo-title">{{ $t('plugin-asl:sex') }}:</span>
                 <span class="kiwi-userbox-basicinfo-data">
-                    {{
-                        user.asl.s[0] === '_'
-                            ? $t('plugin-asl:' + user.asl.s.substr(1))
-                            : user.asl.s
-                    }}
+                    {{ user.asl.s[0] === '_' ? $t('plugin-asl:' + user.asl.s.substr(1)) : user.asl.s }}
                 </span>
             </div>
             <div v-if="user.asl.l">
@@ -34,11 +30,11 @@
 <script>
 /* global kiwi:true */
 
-import * as config from '../config.js';
+import * as config from '@/config.js';
 
-let toHtml = kiwi.require('libs/renderers/Html');
-let parseMessage = kiwi.require('libs/MessageParser');
-let TextFormatting = kiwi.require('helpers/TextFormatting');
+const toHtml = kiwi.require('libs/renderers/Html');
+const parseMessage = kiwi.require('libs/MessageParser');
+const TextFormatting = kiwi.require('helpers/TextFormatting');
 
 export default {
     props: ['user'],
@@ -47,13 +43,13 @@ export default {
             return config.getSetting('singleLineUserbox');
         },
         aslString() {
-            let parts = config.getSetting('singleLineString');
-            let out = [];
+            const parts = config.getSetting('singleLineString');
+            const out = [];
             if (this.user.asl.a) {
                 out.push(parts.age.replace('%a', this.user.asl.a));
             }
             if (this.user.asl.s) {
-                let sex =
+                const sex =
                     this.user.asl.s[0] === '_'
                         ? TextFormatting.t('plugin-asl:' + this.user.asl.s.substr(1))
                         : this.user.asl.s;
@@ -65,8 +61,8 @@ export default {
             return out.join(parts.separator);
         },
         formattedRealname() {
-            let blocks = parseMessage(this.user.aslRealname || '', { extras: false });
-            let content = toHtml(blocks, false);
+            const blocks = parseMessage(this.user.aslRealname || '', { extras: false });
+            const content = toHtml(blocks, false);
             return content;
         },
     },

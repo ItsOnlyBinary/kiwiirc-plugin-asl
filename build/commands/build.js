@@ -18,7 +18,7 @@ const spinner = ora();
     spinner.text = `Building for ${webpackConfig.mode}...`;
     spinner.start();
 
-    rimraf(utils.pathResolve('dist/*'), { glob: true }).then(() => {
+    rimraf(utils.pathResolve('dist') + '/*', { glob: true }).then(() => {
         webpack(webpackConfig, (wpErr, stats) => {
             spinner.stop();
             console.log();

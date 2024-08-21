@@ -1,12 +1,11 @@
-/* global kiwi:true */
-/* global _:true */
+/* global _:true, kiwi:true */
 
-const basePath = getBasePath();
-const configBase = 'plugin-asl';
+export const basePath = getBasePath();
+export const configBase = 'plugin-asl';
 
 export const defaultConfig = {
     // Where the web browser can find the locale json files
-    localesPath: basePath + 'plugin-asl/locales/{{lng}}.json',
+    localesPath: basePath + configBase + '/locales/{{lng}}.json',
 
     // Type 1 "[a/s/l?] realname?"
     // Type 2 "a s l?"
@@ -109,7 +108,7 @@ export function setDefaults(kiwi) {
     pluginASL.selectedSexes = {};
     let sexesRegex = '';
     for (let i = 0; i < sexes.length; i++) {
-        let sex = sexes[i];
+        const sex = sexes[i];
         sexesRegex += sex.chars;
         pluginASL.selectedSexes[sex.name] = true;
     }
@@ -146,8 +145,16 @@ export function setSetting(name, value) {
     return kiwi.state.setSetting(['settings', configBase, name].join('.'), value);
 }
 
+export function getUserSetting(name) {
+    return kiwi.state.getSetting(['user_settings', configBase, name].join('.'));
+}
+
+export function setUserSetting(name, value) {
+    return kiwi.state.setSetting(['user_settings', configBase, name].join('.'), value);
+}
+
 function getBasePath() {
     const scripts = document.getElementsByTagName('script');
     const scriptPath = scripts[scripts.length - 1].src;
-    return scriptPath.substr(0, scriptPath.lastIndexOf('/') + 1);
+    return scriptPath.substring(0, scriptPath.lastIndexOf('/') + 1);
 }

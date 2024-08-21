@@ -24,7 +24,7 @@
 
                 <input-text
                     v-model="nick"
-                    v-focus="!nick || !show_password_box"
+                    v-focus="!isIframe && (!nick || !show_password_box)"
                     :label="$t('nick')"
                     type="text"
                     :class="{'kiwi-welcome-invalid-nick': !isNickValid}"
@@ -45,7 +45,7 @@
                 >
                     <input-text
                         v-model="password"
-                        v-focus="nick || show_password_box"
+                        v-focus="(!isIframe && nick) || show_password_box"
                         :show-plain-text="true"
                         :label="$t('password')"
                         type="password"
@@ -75,13 +75,13 @@
                                     </option>
                                     <option
                                         v-for="sexObj of sexes"
-                                        :key="'sexes-'+sexObj.name"
+                                        :key="'sexes-' + sexObj.name"
                                         :value="sexObj.chars[0]"
-                                        :style="{ 'color': sexObj.colour }"
+                                        :style="{ color: sexObj.colour }"
                                     >{{
-                                        sexObj.name[0] === '_' ?
-                                            $t('plugin-asl:' + sexObj.name.substr(1)) :
-                                            sexObj.name
+                                        sexObj.name[0] === '_'
+                                            ? $t('plugin-asl:' + sexObj.name.substr(1))
+                                            : sexObj.name
                                     }}</option>
                                 </select>
                             </div>
@@ -143,19 +143,18 @@
 
 <script>
 
-/* global _:true */
-/* global kiwi:true */
+/* global _:true, kiwi:true */
 
-import * as config from '../config.js';
-import * as utils from '../libs/utils.js';
+import * as config from '@/config.js';
+import * as utils from '@/libs/utils.js';
 
-let Misc = kiwi.require('helpers/Misc');
-let Logger = kiwi.require('libs/Logger');
-let BouncerProvider = kiwi.require('libs/BouncerProvider');
-let Captcha = kiwi.require('components/Captcha');
-let StartupLayout = kiwi.require('components/startups/CommonLayout');
+const Misc = kiwi.require('helpers/Misc');
+const Logger = kiwi.require('libs/Logger');
+const BouncerProvider = kiwi.require('libs/BouncerProvider');
+const Captcha = kiwi.require('components/Captcha');
+const StartupLayout = kiwi.require('components/startups/CommonLayout');
 
-let log = Logger.namespace('Welcome.vue');
+const log = Logger.namespace('Welcome.vue');
 
 export default {
     components: {
@@ -239,6 +238,9 @@ export default {
                 this.isLocationValid &&
                 this.isRealnameValid
             );
+        },
+        isIframe() {
+            return !(window === window.parent || window.opener);
         },
         startupOptions() {
             return this.$state.settings.startupOptions;
@@ -635,7 +637,6 @@ export default {
 </script>
 
 <style>
-
 /* Containers */
 form.kiwi-welcome-simple-form {
     width: 70%;
@@ -726,11 +727,12 @@ form.kiwi-welcome-simple-form h2 {
 }
 
 /* ASL additions */
+
 .kiwi-welcome-simple-age-sex {
-    height: auto;
     position: relative;
-    margin: 0;
     display: flex;
+    height: auto;
+    margin: 0;
 }
 
 .kiwi-welcome-simple-age {
@@ -738,39 +740,43 @@ form.kiwi-welcome-simple-form h2 {
     width: 50%;
 }
 
+.kiwi-welcome-simple-age input {
+    width: 100%;
+}
+
 .kiwi-welcome-simple-sex {
     display: inline-block;
-    margin-left: 5px;
     width: 50%;
+    margin-left: 5px;
 }
 
 .u-form .kiwi-welcome-simple-sex select {
     position: relative;
-    -webkit-appearance: initial;
-    border-radius: 5px;
-    color: var(--brand-input-fg);
-    font-size: inherit;
-    overflow: hidden;
-    padding: 15px 14px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    z-index: 1;
     box-sizing: border-box;
     width: 100%;
-    z-index: 1;
+    padding: 15px 14px;
+    overflow: hidden;
+    font-size: inherit;
+    color: var(--brand-input-fg);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    appearance: initial;
+    border-radius: 5px;
 }
 
 .u-form .kiwi-welcome-simple-sex-select::after {
-    font-family: fontAwesome, sans-serif;
-    content: '\f078';
     position: absolute;
     right: 1em;
     padding: 16px 0;
+    font-family: fontAwesome, sans-serif;
     line-height: 1em;
+    content: '\f078';
 }
 
 .u-form .kiwi-welcome-simple-sex select:focus {
-    outline: none;
     border-color: var(--brand-primary);
+    outline: none;
 }
 
 .u-form .kiwi-welcome-simple-sex select option {

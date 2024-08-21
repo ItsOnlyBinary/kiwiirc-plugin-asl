@@ -2,7 +2,7 @@ const os = require('os');
 const path = require('path');
 const { execSync } = require('child_process');
 
-module.exports.pathResolve = (...args) => path.posix.join(process.cwd(), ...args);
+module.exports.pathResolve = (...args) => path.resolve(process.cwd(), ...args);
 
 module.exports.getCommitHash = () => {
     let commitHash = 'unknown';
@@ -55,9 +55,9 @@ module.exports.GiB = 1073741824;
  * http://processing.org/reference/map_.html
  */
 module.exports.mapRange = (value, vMin, vMax, dMin, dMax) => {
-    let vValue = parseFloat(value);
-    let vRange = vMax - vMin;
-    let dRange = dMax - dMin;
+    const vValue = parseFloat(value);
+    const vRange = vMax - vMin;
+    const dRange = dMax - dMin;
 
     return (vValue - vMin) * dRange / vRange + dMin;
 };

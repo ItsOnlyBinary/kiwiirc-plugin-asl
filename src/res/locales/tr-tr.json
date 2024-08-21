@@ -1,0 +1,14 @@
+{
+    "age": "Yaş",
+    "sex": "Cinsiyet",
+    "location": "Konum",
+    "info": "Bilgi",
+    "all": "Hepsi",
+    "male": "Erkek",
+    "female": "Kadın",
+    "other": "Diğer",
+    "select": "Seç",
+    "global": "Tüm Kanallar",
+    "range": "Yaş Aralığı",
+    "filter": "Kullanıcıları Filtrele"
+}
