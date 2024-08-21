@@ -1,3 +1,5 @@
+/* global kiwi:true */
+
 import CustomWelcome from '@/components/CustomWelcome.vue';
 import UserBoxInfo from '@/components/UserBoxInfo.vue';
 import UserBrowserButton from '@/components/UserBrowserButton.vue';
@@ -6,9 +8,8 @@ import * as config from '@/config.js';
 import * as utils from '@/libs/utils.js';
 import * as colours from '@/libs/colours.js';
 
-import fallbackLocale from '../res/locales/en-us.json';
+import fallbackLocale from '@/res/locales/en-us.json';
 
-// eslint-disable-next-line no-undef
 kiwi.plugin('asl', (kiwi, log) => {
     config.setDefaults(kiwi);
 

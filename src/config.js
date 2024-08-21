@@ -1,5 +1,4 @@
-/* global kiwi:true */
-/* global _:true */
+/* global _:true, kiwi:true */
 
 export const basePath = getBasePath();
 export const configBase = 'plugin-asl';
@@ -134,8 +133,8 @@ export function setDefaults(kiwi) {
     pluginASL.userFilter = '';
 }
 
-export function setting(name, value) {
-    return kiwi.state.setting([configBase, name].join('.'), value);
+export function setting(name) {
+    return kiwi.state.setting([configBase, name].join('.'));
 }
 
 export function getSetting(name) {

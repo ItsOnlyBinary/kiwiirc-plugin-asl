@@ -75,13 +75,13 @@
                                     </option>
                                     <option
                                         v-for="sexObj of sexes"
-                                        :key="'sexes-'+sexObj.name"
+                                        :key="'sexes-' + sexObj.name"
                                         :value="sexObj.chars[0]"
-                                        :style="{ 'color': sexObj.colour }"
+                                        :style="{ color: sexObj.colour }"
                                     >{{
-                                        sexObj.name[0] === '_' ?
-                                            $t('plugin-asl:' + sexObj.name.substr(1)) :
-                                            sexObj.name
+                                        sexObj.name[0] === '_'
+                                            ? $t('plugin-asl:' + sexObj.name.substr(1))
+                                            : sexObj.name
                                     }}</option>
                                 </select>
                             </div>
@@ -143,8 +143,7 @@
 
 <script>
 
-/* global _:true */
-/* global kiwi:true */
+/* global _:true, kiwi:true */
 
 import * as config from '@/config.js';
 import * as utils from '@/libs/utils.js';
@@ -156,8 +155,6 @@ const Captcha = kiwi.require('components/Captcha');
 const StartupLayout = kiwi.require('components/startups/CommonLayout');
 
 const log = Logger.namespace('Welcome.vue');
-
-/* eslint-disable prefer-const */
 
 export default {
     components: {
@@ -637,13 +634,9 @@ export default {
         },
     },
 };
-
-/* eslint-enable prefer-const */
 </script>
 
 <style>
-/* stylelint-disable order/properties-order */
-
 /* Containers */
 form.kiwi-welcome-simple-form {
     width: 70%;
@@ -735,8 +728,6 @@ form.kiwi-welcome-simple-form h2 {
 
 /* ASL additions */
 
-/* stylelint-enable order/properties-order */
-
 .kiwi-welcome-simple-age-sex {
     position: relative;
     display: flex;
@@ -747,6 +738,10 @@ form.kiwi-welcome-simple-form h2 {
 .kiwi-welcome-simple-age {
     display: inline-block;
     width: 50%;
+}
+
+.kiwi-welcome-simple-age input {
+    width: 100%;
 }
 
 .kiwi-welcome-simple-sex {

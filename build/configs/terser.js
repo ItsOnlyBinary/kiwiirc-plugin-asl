@@ -9,6 +9,12 @@ module.exports = {
             sequences: true,
             unused: true,
         },
+        mangle: {
+            safari10: true,
+        },
+        format: {
+            comments: false,
+        },
     },
     extractComments: {
         condition: false,

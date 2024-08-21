@@ -15,12 +15,14 @@ export function hex2rgb(hex) {
     const fullHex = hex.replace(shorthandRegex, (m, r, g, b, a) => r + r + g + g + b + b + (a ? a + a : ''));
 
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?$/i.exec(fullHex);
-    return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16),
-        a: result[4] ? parseFloat((parseInt(result[4], 16) / 255).toFixed(3)) : undefined,
-    } : null;
+    return result
+        ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16),
+            a: result[4] ? parseFloat((parseInt(result[4], 16) / 255).toFixed(3)) : undefined,
+        }
+        : null;
 }
 
 /**
